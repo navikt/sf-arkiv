@@ -298,7 +298,7 @@ fun Application.module(testing: Boolean = false) {
     log.info { "After routing setup" }
 //    doAddTestData()
 //    conditionalWait(120000)
-//    doSearch()
+    doSearch()
 //    log.info { "After doSearch" }
 }
 
