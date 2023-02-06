@@ -35,7 +35,7 @@ repositories {
         url "http://packages.confluent.io/maven"
     }
 
-    ["maven-release", "crm-utilities"].each { repo ->
+    ["maven-release"].each { repo ->
         String token = System.getenv("GITHUB_TOKEN") ?: project.findProperty("githubPassword")
         if (!token) throw new NullPointerException("Missing token, you have to set GITHUB_TOKEN or githubPassword")
         maven {
@@ -49,7 +49,6 @@ repositories {
 }
 
 dependencies {
-    compile "no.nav.sf.library:crm-utilities:0.115"
 
     implementation "org.apache.kafka:kafka-clients:2.3.1"
     implementation "no.nav.security:token-validation-core:1.3.1"
