@@ -23,8 +23,6 @@ import java.io.File
 import java.sql.SQLTransientConnectionException
 import java.util.UUID
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.content
 import mu.KotlinLogging
 import no.nav.nks.sf.arkiv.dokumentasjon.database.DB
 import no.nav.nks.sf.arkiv.dokumentasjon.database.DB.Companion.addArchive
@@ -32,7 +30,6 @@ import no.nav.nks.sf.arkiv.dokumentasjon.database.DB.Companion.henteArchive
 import no.nav.nks.sf.arkiv.dokumentasjon.database.DB.Companion.henteId
 import no.nav.nks.sf.arkiv.dokumentasjon.database.PostgresDatabase
 import no.nav.nks.sf.arkiv.dokumentasjon.token.containsValidToken
-import no.nav.sf.library.encodeB64
 import org.joda.time.DateTime
 import workMetrics
 
@@ -81,6 +78,7 @@ fun ArkivModel.hasValidDokumentDato(): Boolean {
     return true
 }
 
+/*
 fun String.toHenvendelseArkivModel(): ArkivModel? {
     val arkivModel: ArkivModel = ArkivModel()
     arkivModel.kilde = "Henvendelse"
@@ -103,6 +101,8 @@ fun String.toHenvendelseArkivModel(): ArkivModel? {
         return null
     }
 }
+
+ */
 
 data class HenteModel(
     val id: String = "",
@@ -303,8 +303,8 @@ fun Application.module(testing: Boolean = false) {
 }
 
 fun doAddTestData() {
-    val archiveModel = ArkivModel(fnr = "25839399971", aktoerid = "2146876072680", tema = "itest", dokumentasjon = UUID.randomUUID().toString().encodeB64(), dokumentdato = "2023-02-03")
-    val archiveModel2 = ArkivModel(fnr = "25839399971", aktoerid = "2146876072680", tema = "itest", dokumentasjon = UUID.randomUUID().toString().encodeB64(), dokumentdato = "2023-02-03")
+    val archiveModel = ArkivModel(fnr = "25839399971", aktoerid = "2146876072680", tema = "itest", dokumentasjon = UUID.randomUUID().toString(), dokumentdato = "2023-02-03")
+    val archiveModel2 = ArkivModel(fnr = "25839399971", aktoerid = "2146876072680", tema = "itest", dokumentasjon = UUID.randomUUID().toString(), dokumentdato = "2023-02-03")
 
     addArchive(arrayOf(archiveModel, archiveModel2))
 }
