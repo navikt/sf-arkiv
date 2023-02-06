@@ -36,10 +36,10 @@ spec:
   ingresses:
     - "https://sf-arkiv-dokumentasjon.intern.nav.no"
   vault:
-    enabled: false
-    paths:
-      - mountPath: /var/run/secrets/nais.io/vault
-        kvPath: /kv/prod/fss/sf-arkiv-dokumentasjon/default
+    enabled: true
+#    paths:
+#      - mountPath: /var/run/secrets/nais.io/vault
+#        kvPath: /kv/prod/fss/sf-arkiv-dokumentasjon/default
   webproxy: true
   azure:
     application:
