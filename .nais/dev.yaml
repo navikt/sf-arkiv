@@ -35,15 +35,11 @@ spec:
     path: /prometheus
   ingresses:
     - "https://sf-arkiv-dokumentasjon.dev.intern.nav.no"
-  vault:
-    enabled: true
-#    paths:
-#      - mountPath: /var/run/secrets/nais.io/vault
-#        kvPath: /kv/preprod/fss/sf-arkiv-dokumentasjon/default
   webproxy: true
   azure:
     application:
       enabled: true
+      allowAllUsers: true
       tenant: trygdeetaten.no
   accessPolicy:
     inbound:
