@@ -309,7 +309,7 @@ fun doAddTestData() {
     addArchive(arrayOf(archiveModel, archiveModel2))
 }
 fun doSearch() {
-    val henteModel = HenteModel(fnr = "25839399971")
+    val henteModel = HenteModel(aktoerid = "1000083407063") // Dev fnr 25839399971
     File("/tmp/searchresult").writeText(henteArchive(henteModel).joinToString("\n"))
 }
 
