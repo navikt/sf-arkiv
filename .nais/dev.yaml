@@ -23,13 +23,15 @@ spec:
     initialDelay: 5
     periodSeconds: 5
     failureThreshold: 30
+  preStopHook:
+    exec:
+      command: [ "/bin/bash", "/pre-stop.sh" ]
   resources:
     limits:
-      cpu: 1000m
-      memory: 2Gi
+      memory: 1Gi
     requests:
       cpu: 100m
-      memory: 1Gi
+      memory: 2048Mi
   prometheus:
     enabled: true
     path: /prometheus
