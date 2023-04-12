@@ -37,6 +37,8 @@ spec:
     path: /prometheus
   ingresses:
     - "https://sf-arkiv-dokumentasjon.intern.nav.no"
+  vault:
+    enabled: true
   webproxy: true
   azure:
     application:
