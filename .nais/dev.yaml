@@ -14,12 +14,12 @@ spec:
     min: 1
     max: 1
   liveness:
-    path: /is_alive
+    path: /internal/is_alive
     initialDelay: 5
     periodSeconds: 5
     failureThreshold: 30
   readiness:
-    path: /is_ready
+    path: /internal/is_ready
     initialDelay: 5
     periodSeconds: 5
     failureThreshold: 30
@@ -34,7 +34,7 @@ spec:
       memory: 512Mi
   prometheus:
     enabled: true
-    path: /prometheus
+    path: /internal/prometheus
   ingresses:
     - "https://sf-arkiv-dokumentasjon.dev.intern.nav.no"
   vault:
@@ -58,8 +58,6 @@ spec:
       value: dev
     - name: MS_BETWEEN_WORK
       value: '600000'
-    - name: VAULT_INSTANCE
-      value: PREPROD
     - name: MOUNT_PATH
       value: /postgresql/preprod-fss
     - name: DB_NAME
@@ -68,17 +66,3 @@ spec:
       value: admin
     - name: DB_URL
       value: jdbc:postgresql://b27dbvl023.preprod.local:5432/arkiv-dokumentasjon
-    - name: KAFKA_CLIENTID
-      value: arkiv-dokumentasjon
-    - name: KAFKA_SECURITY
-      value: 'TRUE'
-    - name: KAFKA_SECPROT
-      value: SASL_SSL
-    - name: KAFKA_SASLMEC
-      value: PLAIN
-    - name: KAFKA_TOPIC
-      value: personoversikt.henvendelse-henvendelse
-    - name: MS_BETWEEN_WORK
-      value: '600000'
-    - name: VAULT_INSTANCE
-      value: GCP

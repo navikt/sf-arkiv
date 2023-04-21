@@ -1,33 +1,21 @@
+import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.Gauge
+import io.prometheus.client.hotspot.DefaultExports
 
-data class WMetrics(
-    val requestArkiv: Gauge = Gauge
-        .build()
-        .name("request_arkiv")
-        .help("request_arkiv")
-        .register(),
-    val requestHente: Gauge = Gauge
-        .build()
-        .name("request_hente")
-        .help("request_hente")
-        .register(),
-    val insertedEntries: Gauge = Gauge
-        .build()
-        .name("inserted_entries")
-        .help("inserted_entries")
-        .register(),
-    val issues: Gauge = Gauge
-        .build()
-        .name("issues")
-        .help("issues")
-        .register()
-) {
-    fun clearAll() {
-        requestArkiv.clear()
-        requestHente.clear()
-        insertedEntries.clear()
-        issues.clear()
+object Metrics {
+    val cRegistry: CollectorRegistry = CollectorRegistry.defaultRegistry
+
+    val requestArkiv = registerGauge("request_arkiv")
+    val requestHente = registerGauge("request_hente")
+    val insertedEntries = registerGauge("inserted_entries")
+    val latestId = registerGauge("latest_id")
+    val issues = registerGauge("issues")
+
+    fun registerGauge(name: String): Gauge {
+        return Gauge.build().name(name).help(name).register()
+    }
+
+    init {
+        DefaultExports.initialize()
     }
 }
-
-val workMetrics = WMetrics()

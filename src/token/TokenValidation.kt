@@ -4,7 +4,6 @@ import io.ktor.request.ApplicationRequest
 import java.io.File
 import java.net.URL
 import mu.KotlinLogging
-import no.nav.nks.sf.arkiv.dokumentasjon.utils.Environment
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.http.HttpRequest
@@ -19,8 +18,8 @@ const val claim_NAME = "name"
 val multiIssuerConfiguration = MultiIssuerConfiguration(
     mapOf(
         "azure" to IssuerProperties(
-            URL(Environment.getEnvOrDefault(env_AZURE_APP_WELL_KNOWN_URL, "http://")),
-            listOf(Environment.getEnvOrDefault(env_AZURE_APP_CLIENT_ID, ""))
+            URL(System.getenv(env_AZURE_APP_WELL_KNOWN_URL)),
+            listOf(System.getenv(env_AZURE_APP_CLIENT_ID))
         )
     )
 )
