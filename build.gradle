@@ -42,7 +42,7 @@ repositories {
         url "http://packages.confluent.io/maven"
     }
 
-    ["maven-release", "crm-utilities"].each { repo ->
+    ["maven-release"].each { repo ->
         String token = System.getenv("GITHUB_TOKEN") ?: project.findProperty("githubPassword")
         if (!token) throw new NullPointerException("Missing token, you have to set GITHUB_TOKEN or githubPassword")
         maven {
