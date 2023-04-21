@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}/sf-arkiv-dokumentasjon:${{ github.sha }}
+  ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   build:
     name: Build and push Docker container
