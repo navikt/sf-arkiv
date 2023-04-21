@@ -128,7 +128,7 @@ fun Application.module(testing: Boolean = false) {
 
 //  doAddTestData()
 //    conditionalWait(120000)
-//    doSearch()
+    doSearch()
 }
 
 fun doAddTestData() {
