@@ -1,4 +1,4 @@
-package no.nav.nks.sf.arkiv.dokumentasjon.token
+package no.nav.crm.sf.arkiv.dokumentasjon.token
 
 import io.ktor.request.ApplicationRequest
 import java.io.File

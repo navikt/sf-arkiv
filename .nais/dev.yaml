@@ -51,8 +51,6 @@ spec:
         - application: salesforce
           namespace: teamcrm
           cluster: dev-external
-  kafka:
-    pool: nav-dev # enum of nav-dev, nav-prod
   env:
     - name: KTOR_ENV
       value: dev

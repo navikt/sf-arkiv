@@ -50,8 +50,6 @@ spec:
         - application: salesforce
           namespace: teamcrm
           cluster: prod-external
-  kafka:
-    pool: nav-prod # enum of nav-dev, nav-prod
   env:
     - name: KTOR_ENV
       value: production

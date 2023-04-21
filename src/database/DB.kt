@@ -1,4 +1,4 @@
-package no.nav.nks.sf.arkiv.dokumentasjon.database
+package no.nav.crm.sf.arkiv.dokumentasjon.database
 
 import java.io.File
 import java.sql.ResultSet
@@ -7,10 +7,10 @@ import model.ArkivResponse
 import model.HenteModel
 import model.HenteResponse
 import mu.KotlinLogging
-import no.nav.nks.sf.arkiv.dokumentasjon.isDev
-import no.nav.nks.sf.arkiv.dokumentasjon.model.ArkivV3
-import no.nav.nks.sf.arkiv.dokumentasjon.model.ArkivV4
-import no.nav.nks.sf.arkiv.dokumentasjon.model.DOKUMENTASJON_LENGTH
+import no.nav.crm.sf.arkiv.dokumentasjon.isDev
+import no.nav.crm.sf.arkiv.dokumentasjon.model.ArkivV3
+import no.nav.crm.sf.arkiv.dokumentasjon.model.ArkivV4
+import no.nav.crm.sf.arkiv.dokumentasjon.model.DOKUMENTASJON_LENGTH
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query

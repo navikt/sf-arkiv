@@ -1,4 +1,4 @@
-package no.nav.nks.sf.arkiv.dokumentasjon.investigate
+package no.nav.crm.sf.arkiv.dokumentasjon.investigate
 
 import java.io.FileOutputStream
 import java.time.Instant

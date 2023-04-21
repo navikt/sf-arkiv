@@ -1,4 +1,4 @@
-package no.nav.nks.sf.arkiv.dokumentasjon
+package no.nav.crm.sf.arkiv.dokumentasjon
 
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -25,10 +25,10 @@ import model.HenteModel
 import model.hasValidDokumentDato
 import model.isEmpty
 import mu.KotlinLogging
-import no.nav.nks.sf.arkiv.dokumentasjon.database.DB.addArchive
-import no.nav.nks.sf.arkiv.dokumentasjon.database.DB.henteArchive
-import no.nav.nks.sf.arkiv.dokumentasjon.database.DB.henteArchiveV4
-import no.nav.nks.sf.arkiv.dokumentasjon.token.containsValidToken
+import no.nav.crm.sf.arkiv.dokumentasjon.database.DB.addArchive
+import no.nav.crm.sf.arkiv.dokumentasjon.database.DB.henteArchive
+import no.nav.crm.sf.arkiv.dokumentasjon.database.DB.henteArchiveV4
+import no.nav.crm.sf.arkiv.dokumentasjon.token.containsValidToken
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 

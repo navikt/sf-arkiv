@@ -1,12 +1,12 @@
-package no.nav.nks.sf.arkiv.dokumentasjon.database
+package no.nav.crm.sf.arkiv.dokumentasjon.database
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import java.sql.Connection
 import mu.KotlinLogging
-import no.nav.nks.sf.arkiv.dokumentasjon.dbName
-import no.nav.nks.sf.arkiv.dokumentasjon.dbUrl
-import no.nav.nks.sf.arkiv.dokumentasjon.mountPath
+import no.nav.crm.sf.arkiv.dokumentasjon.dbName
+import no.nav.crm.sf.arkiv.dokumentasjon.dbUrl
+import no.nav.crm.sf.arkiv.dokumentasjon.mountPath
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 
 class PostgresDatabase {
