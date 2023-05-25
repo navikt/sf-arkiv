@@ -28,7 +28,7 @@ spec:
       command: [ "/bin/bash", "/pre-stop.sh" ]
   resources:
     limits:
-      memory: 1Gi
+      memory: 3Gi
     requests:
       cpu: 100m
       memory: 512Mi
