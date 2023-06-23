@@ -1,7 +1,5 @@
 package no.nav.crm.sf.arkiv.dokumentasjon.database
 
-import java.io.File
-import java.sql.ResultSet
 import model.ArkivModel
 import model.ArkivResponse
 import model.HenteModel
@@ -23,6 +21,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
+import java.io.File
+import java.sql.ResultSet
 
 private val log = KotlinLogging.logger { }
 

@@ -16,10 +16,6 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.prometheus.client.exporter.common.TextFormat
-import java.io.File
-import java.io.StringWriter
-import java.sql.SQLTransientConnectionException
-import java.util.UUID
 import model.ArkivModel
 import model.HenteModel
 import model.hasValidDokumentDato
@@ -29,6 +25,10 @@ import no.nav.crm.sf.arkiv.dokumentasjon.database.DB.addArchive
 import no.nav.crm.sf.arkiv.dokumentasjon.database.DB.henteArchive
 import no.nav.crm.sf.arkiv.dokumentasjon.database.DB.henteArchiveV4
 import no.nav.crm.sf.arkiv.dokumentasjon.token.containsValidToken
+import java.io.File
+import java.io.StringWriter
+import java.sql.SQLTransientConnectionException
+import java.util.UUID
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -61,11 +61,13 @@ fun Application.module(testing: Boolean = false) {
             call.respondText("I'm ready! :)")
         }
         get("/internal/prometheus") {
-            call.respond(HttpStatusCode.OK,
-            StringWriter().let { str ->
-                TextFormat.write004(str, Metrics.cRegistry.metricFamilySamples())
-                str
-            }.toString())
+            call.respond(
+                HttpStatusCode.OK,
+                StringWriter().let { str ->
+                    TextFormat.write004(str, Metrics.cRegistry.metricFamilySamples())
+                    str
+                }.toString()
+            )
         }
         post("/arkiv") {
             Metrics.requestArkiv.inc()
@@ -117,17 +119,9 @@ fun Application.module(testing: Boolean = false) {
                 call.respond(HttpStatusCode.Unauthorized)
             }
         }
-        /*
-        get("/idexists") {
-            val dokumentasjonId = call.request.queryParameters.get("dokumentasjonid") ?: ""
-
-            call.respond(HttpStatusCode.OK, "Result searching on $dokumentasjonId: ${entryIdOfDokumentasjonId(dokumentasjonId)}")
-        }
-         */
     }
 
 //  doAddTestData()
-//    conditionalWait(120000)
     doSearch()
 }
 

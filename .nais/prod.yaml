@@ -30,8 +30,8 @@ spec:
     limits:
       memory: 3Gi
     requests:
-      cpu: 100m
-      memory: 512Mi
+      cpu: 10m
+      memory: 1Gi
   prometheus:
     enabled: true
     path: /internal/prometheus

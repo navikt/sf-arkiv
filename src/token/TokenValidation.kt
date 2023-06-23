@@ -1,13 +1,13 @@
 package no.nav.crm.sf.arkiv.dokumentasjon.token
 
 import io.ktor.request.ApplicationRequest
-import java.io.File
-import java.net.URL
 import mu.KotlinLogging
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
+import java.io.File
+import java.net.URL
 
 const val env_AZURE_APP_WELL_KNOWN_URL = "AZURE_APP_WELL_KNOWN_URL"
 const val env_AZURE_APP_CLIENT_ID = "AZURE_APP_CLIENT_ID"
