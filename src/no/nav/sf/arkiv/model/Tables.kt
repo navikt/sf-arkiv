@@ -1,4 +1,4 @@
-package no.nav.crm.sf.arkiv.dokumentasjon.model
+package no.nav.sf.arkiv.model
 
 import org.jetbrains.exposed.sql.Table
 

@@ -1,4 +1,4 @@
-package no.nav.crm.sf.arkiv.dokumentasjon
+package no.nav.sf.arkiv
 
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -11,20 +11,19 @@ import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.prometheus.client.exporter.common.TextFormat
-import model.ArkivModel
-import model.HenteModel
-import model.hasValidDokumentDato
-import model.isEmpty
 import mu.KotlinLogging
-import no.nav.crm.sf.arkiv.dokumentasjon.database.DB.addArchive
-import no.nav.crm.sf.arkiv.dokumentasjon.database.DB.henteArchive
-import no.nav.crm.sf.arkiv.dokumentasjon.database.DB.henteArchiveV4
-import no.nav.crm.sf.arkiv.dokumentasjon.token.containsValidToken
+import no.nav.sf.arkiv.database.DB.addArchive
+import no.nav.sf.arkiv.database.DB.henteArchive
+import no.nav.sf.arkiv.database.DB.henteArchiveV4
+import no.nav.sf.arkiv.model.ArkivModel
+import no.nav.sf.arkiv.model.HenteModel
+import no.nav.sf.arkiv.model.hasValidDokumentDato
+import no.nav.sf.arkiv.model.isEmpty
+import no.nav.sf.arkiv.token.containsValidToken
 import java.io.File
 import java.io.StringWriter
 import java.sql.SQLTransientConnectionException
@@ -55,10 +54,10 @@ fun Application.module(testing: Boolean = false) {
             defaultResource("static/index.html")
         }
         get("/internal/is_alive") {
-            call.respondText("I'm alive! :)")
+            call.respond(HttpStatusCode.OK)
         }
         get("/internal/is_ready") {
-            call.respondText("I'm ready! :)")
+            call.respond(HttpStatusCode.OK)
         }
         get("/internal/prometheus") {
             call.respond(

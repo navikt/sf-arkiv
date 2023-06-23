@@ -1,6 +1,6 @@
-package model
+package no.nav.sf.arkiv.model
 
-import no.nav.crm.sf.arkiv.dokumentasjon.database.DB
+import no.nav.sf.arkiv.database.DB
 import org.joda.time.DateTime
 
 data class ArkivModel(

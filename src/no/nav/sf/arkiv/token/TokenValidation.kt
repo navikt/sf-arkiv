@@ -1,4 +1,4 @@
-package no.nav.crm.sf.arkiv.dokumentasjon.token
+package no.nav.sf.arkiv.token
 
 import io.ktor.request.ApplicationRequest
 import mu.KotlinLogging

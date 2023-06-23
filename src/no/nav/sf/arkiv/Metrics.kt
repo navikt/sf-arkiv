@@ -1,3 +1,5 @@
+package no.nav.sf.arkiv
+
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.Gauge
 import io.prometheus.client.hotspot.DefaultExports

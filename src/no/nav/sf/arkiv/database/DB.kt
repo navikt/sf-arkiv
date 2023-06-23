@@ -1,14 +1,15 @@
-package no.nav.crm.sf.arkiv.dokumentasjon.database
+package no.nav.sf.arkiv.database
 
-import model.ArkivModel
-import model.ArkivResponse
-import model.HenteModel
-import model.HenteResponse
 import mu.KotlinLogging
-import no.nav.crm.sf.arkiv.dokumentasjon.isDev
-import no.nav.crm.sf.arkiv.dokumentasjon.model.ArkivV3
-import no.nav.crm.sf.arkiv.dokumentasjon.model.ArkivV4
-import no.nav.crm.sf.arkiv.dokumentasjon.model.DOKUMENTASJON_LENGTH
+import no.nav.sf.arkiv.Metrics
+import no.nav.sf.arkiv.isDev
+import no.nav.sf.arkiv.model.ArkivModel
+import no.nav.sf.arkiv.model.ArkivResponse
+import no.nav.sf.arkiv.model.ArkivV3
+import no.nav.sf.arkiv.model.ArkivV4
+import no.nav.sf.arkiv.model.DOKUMENTASJON_LENGTH
+import no.nav.sf.arkiv.model.HenteModel
+import no.nav.sf.arkiv.model.HenteResponse
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
