@@ -22,7 +22,7 @@ shadowJar {
 apply plugin: 'kotlin'
 apply plugin: 'application'
 
-group 'no.nav.crm.sf.arkiv.dokumentasjon'
+group 'no.nav.sf.arkiv'
 version '0.0.1'
 mainClassName = "io.ktor.server.netty.EngineMain"
 
