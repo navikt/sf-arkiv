@@ -15,6 +15,9 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.prometheus.client.exporter.common.TextFormat
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import mu.KotlinLogging
 import no.nav.sf.arkiv.database.DB.addArchive
 import no.nav.sf.arkiv.database.DB.henteArchive
@@ -38,6 +41,7 @@ val dbUrl = System.getenv("DB_URL")
 
 private val log = KotlinLogging.logger { }
 
+@OptIn(DelicateCoroutinesApi::class)
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
@@ -119,7 +123,10 @@ fun Application.module(testing: Boolean = false) {
             }
         }
         get("/shutdown") {
-            System.exit(0)
+            GlobalScope.async {
+                Thread.sleep(3000)
+                System.exit(0)
+            }
             call.respond(HttpStatusCode.OK, "Server shutting down...")
         }
     }
