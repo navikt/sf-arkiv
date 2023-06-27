@@ -118,6 +118,10 @@ fun Application.module(testing: Boolean = false) {
                 call.respond(HttpStatusCode.Unauthorized)
             }
         }
+        get("/shutdown") {
+            System.exit(0)
+            call.respond(HttpStatusCode.OK, "Server shutting down...")
+        }
     }
 
 //  doAddTestData()
