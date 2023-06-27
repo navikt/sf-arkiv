@@ -14,10 +14,13 @@ import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import io.prometheus.client.exporter.common.TextFormat
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import no.nav.sf.arkiv.database.DB.addArchive
 import no.nav.sf.arkiv.database.DB.henteArchive
@@ -30,9 +33,41 @@ import no.nav.sf.arkiv.token.containsValidToken
 import java.io.File
 import java.io.StringWriter
 import java.sql.SQLTransientConnectionException
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneOffset
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
-fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
+fun main() {
+    startServer()
+    scheduleServerShutdown()
+}
+
+fun startServer() {
+    embeddedServer(Netty, port = 8080, module = Application::module).start(wait = true)
+}
+
+fun scheduleServerShutdown() {
+    val currentDateTime = LocalDateTime.now()
+    val nextShutdownTime = currentDateTime.with(LocalTime.of(2, 0))
+
+    val currentTimeMillis = System.currentTimeMillis()
+    val nextShutdownTimeMillis = nextShutdownTime.toEpochSecond(ZoneOffset.UTC) * 1000
+
+    val delayMillis = if (currentTimeMillis < nextShutdownTimeMillis) {
+        nextShutdownTimeMillis - currentTimeMillis
+    } else {
+        (nextShutdownTimeMillis + TimeUnit.DAYS.toMillis(1)) - currentTimeMillis
+    }
+
+    GlobalScope.launch {
+        delay(delayMillis)
+        System.exit(0)
+    }
+}
+
+// fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 val isDev: Boolean = System.getenv("KTOR_ENV") == "dev"
 val mountPath = System.getenv("MOUNT_PATH")
@@ -121,13 +156,6 @@ fun Application.module(testing: Boolean = false) {
                 log.info { "Hente call denied - missing valid token" }
                 call.respond(HttpStatusCode.Unauthorized)
             }
-        }
-        get("/shutdown") {
-            GlobalScope.async {
-                Thread.sleep(3000)
-                System.exit(0)
-            }
-            call.respond(HttpStatusCode.OK, "Server shutting down...")
         }
     }
 
