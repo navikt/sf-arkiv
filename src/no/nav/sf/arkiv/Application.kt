@@ -33,7 +33,7 @@ import java.io.StringWriter
 import java.sql.SQLTransientConnectionException
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZoneOffset
+import java.time.ZoneId
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -146,18 +146,20 @@ fun doSearch() {
 fun scheduleServerShutdown() {
     log.info { "Will schedule shutdown..." }
     val currentDateTime = LocalDateTime.now()
-    val nextShutdownTime = currentDateTime.with(LocalTime.of(8, 0)) // -2 compated to match utc (10)
+
+    val zone = ZoneId.systemDefault()
+
+    val nextShutdownTime = currentDateTime.with(LocalTime.of(11, 0)).atZone(zone)
 
     val currentTimeMillis = System.currentTimeMillis()
-    val nextShutdownTimeMillis = nextShutdownTime.toEpochSecond(ZoneOffset.UTC) * 1000
+    val nextShutdownTimeMillis = nextShutdownTime.toInstant().toEpochMilli()
 
     val delayMillis = if (currentTimeMillis < nextShutdownTimeMillis) {
         nextShutdownTimeMillis - currentTimeMillis
     } else {
-        log.info { "Shutdown for next day" }
+        println("Shutdown for next day")
         (nextShutdownTimeMillis + TimeUnit.DAYS.toMillis(1)) - currentTimeMillis
     }
-
     log.info { "Scheduled shutdown - time to in millis $delayMillis" }
 
     GlobalScope.launch {
