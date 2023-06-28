@@ -50,7 +50,7 @@ fun startServer() {
 
 fun scheduleServerShutdown() {
     val currentDateTime = LocalDateTime.now()
-    val nextShutdownTime = currentDateTime.with(LocalTime.of(9, 0))
+    val nextShutdownTime = currentDateTime.with(LocalTime.of(7, 0)) // +2 to match utc (9)
 
     val currentTimeMillis = System.currentTimeMillis()
     val nextShutdownTimeMillis = nextShutdownTime.toEpochSecond(ZoneOffset.UTC) * 1000
