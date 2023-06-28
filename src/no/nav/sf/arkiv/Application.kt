@@ -40,10 +40,10 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 fun main() {
-    log.info { "Starting..." }
-    scheduleServerShutdown()
-    log.info { "Launching server..." }
-    startServer()
+    // log.info { "Starting..." }
+    // scheduleServerShutdown()
+    // log.info { "Launching server..." }
+    // startServer()
 }
 
 fun startServer() {
@@ -51,8 +51,9 @@ fun startServer() {
 }
 
 fun scheduleServerShutdown() {
+    log.info { "Will schedule shutdown..." }
     val currentDateTime = LocalDateTime.now()
-    val nextShutdownTime = currentDateTime.with(LocalTime.of(7, 0)) // +2 to match utc (9)
+    val nextShutdownTime = currentDateTime.with(LocalTime.of(8, 0)) // -2 compated to match utc (10)
 
     val currentTimeMillis = System.currentTimeMillis()
     val nextShutdownTimeMillis = nextShutdownTime.toEpochSecond(ZoneOffset.UTC) * 1000
@@ -168,6 +169,7 @@ fun Application.module(testing: Boolean = false) {
 
 //  doAddTestData()
     doSearch()
+    scheduleServerShutdown()
 }
 
 fun doAddTestData() {
