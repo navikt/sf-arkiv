@@ -40,8 +40,10 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 fun main() {
-    startServer()
+    log.info { "Starting..." }
     scheduleServerShutdown()
+    log.info { "Launching server..." }
+    startServer()
 }
 
 fun startServer() {
