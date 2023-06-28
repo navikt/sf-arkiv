@@ -14,8 +14,6 @@ import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
 import io.prometheus.client.exporter.common.TextFormat
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -38,44 +36,6 @@ import java.time.LocalTime
 import java.time.ZoneOffset
 import java.util.UUID
 import java.util.concurrent.TimeUnit
-
-fun main() {
-    // log.info { "Starting..." }
-    // scheduleServerShutdown()
-    // log.info { "Launching server..." }
-    // startServer()
-}
-
-fun startServer() {
-    embeddedServer(Netty, port = 8080, module = Application::module).start(wait = true)
-}
-
-fun scheduleServerShutdown() {
-    log.info { "Will schedule shutdown..." }
-    val currentDateTime = LocalDateTime.now()
-    val nextShutdownTime = currentDateTime.with(LocalTime.of(8, 0)) // -2 compated to match utc (10)
-
-    val currentTimeMillis = System.currentTimeMillis()
-    val nextShutdownTimeMillis = nextShutdownTime.toEpochSecond(ZoneOffset.UTC) * 1000
-
-    val delayMillis = if (currentTimeMillis < nextShutdownTimeMillis) {
-        nextShutdownTimeMillis - currentTimeMillis
-    } else {
-        log.info { "Shutdown for next day" }
-        (nextShutdownTimeMillis + TimeUnit.DAYS.toMillis(1)) - currentTimeMillis
-    }
-
-    log.info { "Scheduled shutdown - time to in millis $delayMillis" }
-
-    GlobalScope.launch {
-        delay(delayMillis)
-        log.info("Trigger shutdown")
-        delay(3000)
-        System.exit(0)
-    }
-}
-
-// fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 val isDev: Boolean = System.getenv("KTOR_ENV") == "dev"
 val mountPath = System.getenv("MOUNT_PATH")
@@ -181,4 +141,29 @@ fun doAddTestData() {
 fun doSearch() {
     val henteModel = HenteModel(aktoerid = "22222")
     File("/tmp/searchresult").writeText((henteArchive(henteModel) + henteArchiveV4(henteModel)).joinToString("\n"))
+}
+
+fun scheduleServerShutdown() {
+    log.info { "Will schedule shutdown..." }
+    val currentDateTime = LocalDateTime.now()
+    val nextShutdownTime = currentDateTime.with(LocalTime.of(8, 0)) // -2 compated to match utc (10)
+
+    val currentTimeMillis = System.currentTimeMillis()
+    val nextShutdownTimeMillis = nextShutdownTime.toEpochSecond(ZoneOffset.UTC) * 1000
+
+    val delayMillis = if (currentTimeMillis < nextShutdownTimeMillis) {
+        nextShutdownTimeMillis - currentTimeMillis
+    } else {
+        log.info { "Shutdown for next day" }
+        (nextShutdownTimeMillis + TimeUnit.DAYS.toMillis(1)) - currentTimeMillis
+    }
+
+    log.info { "Scheduled shutdown - time to in millis $delayMillis" }
+
+    GlobalScope.launch {
+        delay(delayMillis)
+        log.info("Trigger shutdown")
+        delay(3000)
+        System.exit(0)
+    }
 }
