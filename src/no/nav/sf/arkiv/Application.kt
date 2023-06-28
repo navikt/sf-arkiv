@@ -50,7 +50,7 @@ fun startServer() {
 
 fun scheduleServerShutdown() {
     val currentDateTime = LocalDateTime.now()
-    val nextShutdownTime = currentDateTime.with(LocalTime.of(2, 0))
+    val nextShutdownTime = currentDateTime.with(LocalTime.of(9, 0))
 
     val currentTimeMillis = System.currentTimeMillis()
     val nextShutdownTimeMillis = nextShutdownTime.toEpochSecond(ZoneOffset.UTC) * 1000
@@ -58,11 +58,16 @@ fun scheduleServerShutdown() {
     val delayMillis = if (currentTimeMillis < nextShutdownTimeMillis) {
         nextShutdownTimeMillis - currentTimeMillis
     } else {
+        log.info { "Shutdown for next day" }
         (nextShutdownTimeMillis + TimeUnit.DAYS.toMillis(1)) - currentTimeMillis
     }
 
+    log.info { "Scheduled shutdown - time to in millis $delayMillis" }
+
     GlobalScope.launch {
         delay(delayMillis)
+        log.info("Trigger shutdown")
+        delay(3000)
         System.exit(0)
     }
 }
