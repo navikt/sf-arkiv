@@ -149,7 +149,7 @@ fun scheduleServerShutdown() {
 
     val zone = ZoneId.systemDefault()
 
-    val nextShutdownTime = currentDateTime.with(LocalTime.of(11, 0)).atZone(zone)
+    val nextShutdownTime = currentDateTime.with(LocalTime.of(2, 0)).atZone(zone)
 
     val currentTimeMillis = System.currentTimeMillis()
     val nextShutdownTimeMillis = nextShutdownTime.toInstant().toEpochMilli()
