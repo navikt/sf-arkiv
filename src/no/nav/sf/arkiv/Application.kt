@@ -128,6 +128,7 @@ fun Application.module(testing: Boolean = false) {
     }
 
 //  doAddTestData()
+    // health check
     doSearch()
     scheduleServerShutdown()
 }
@@ -143,6 +144,9 @@ fun doSearch() {
     File("/tmp/searchresult").writeText((henteArchive(henteModel) + henteArchiveV4(henteModel)).joinToString("\n"))
 }
 
+/**
+ * kill early in the morning
+ */
 fun scheduleServerShutdown() {
     log.info { "Will schedule shutdown..." }
     val currentDateTime = LocalDateTime.now()
