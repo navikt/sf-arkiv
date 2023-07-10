@@ -19,3 +19,9 @@ target/
 out/
 
 Scratch*
+
+# misc
+.*.sw?
+Session.vim
+TAGS
+tags
