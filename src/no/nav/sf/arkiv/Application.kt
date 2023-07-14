@@ -162,7 +162,7 @@ fun scheduleServerShutdown() {
         nextShutdownTimeMillis - currentTimeMillis
     } else {
         println("Shutdown for next day")
-        (nextShutdownTimeMillis + TimeUnit.DAYS.toMillis(2)) - currentTimeMillis
+        (nextShutdownTimeMillis + TimeUnit.DAYS.toMillis(1)) - currentTimeMillis
     }
     log.info { "Scheduled shutdown - time to in millis $delayMillis" }
 
