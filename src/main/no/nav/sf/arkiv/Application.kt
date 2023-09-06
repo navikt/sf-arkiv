@@ -30,7 +30,6 @@ import no.nav.sf.arkiv.model.hasValidDokumentDato
 import no.nav.sf.arkiv.model.isEmpty
 import no.nav.sf.arkiv.token.containsValidToken
 import java.io.File
-import java.io.StringWriter
 import java.sql.SQLTransientConnectionException
 import java.time.LocalDateTime
 import java.time.LocalTime
