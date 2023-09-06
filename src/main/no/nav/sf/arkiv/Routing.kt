@@ -30,6 +30,3 @@ fun Routing.prometheusAPI() {
         )
     }
 }
-
-
-
