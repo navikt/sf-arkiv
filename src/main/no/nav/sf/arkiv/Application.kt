@@ -11,11 +11,9 @@ import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
-import io.prometheus.client.exporter.common.TextFormat
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
