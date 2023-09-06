@@ -46,7 +46,8 @@ class ApplicationTest {
             setupJsonParsing()
             application.routing {
                 podAPI()
-                prometheusAPI()}
+                prometheusAPI()
+            }
         }
 
     private fun TestApplicationEngine.setupJsonParsing() {
