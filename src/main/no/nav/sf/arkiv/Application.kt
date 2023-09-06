@@ -11,6 +11,7 @@ import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.request.receive
 import io.ktor.response.respond
+import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
@@ -60,21 +61,8 @@ fun Application.module(testing: Boolean = false) {
             resources("static")
             defaultResource("static/index.html")
         }
-        get("/internal/is_alive") {
-            call.respond(HttpStatusCode.OK)
-        }
-        get("/internal/is_ready") {
-            call.respond(HttpStatusCode.OK)
-        }
-        get("/internal/prometheus") {
-            call.respond(
-                HttpStatusCode.OK,
-                StringWriter().let { str ->
-                    TextFormat.write004(str, Metrics.cRegistry.metricFamilySamples())
-                    str
-                }.toString()
-            )
-        }
+        podAPI()
+        prometheusAPI()
         get("/authping") {
             log.info { "Incoming call authping" }
             val valid = containsValidToken(call.request)
