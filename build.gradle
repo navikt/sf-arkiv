@@ -83,6 +83,9 @@ dependencies {
 
     testImplementation "io.ktor:ktor-server-test-host:$ktor_version"
     testImplementation "org.junit.jupiter:junit-jupiter:5.8.1"
+    testImplementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1"
+    testImplementation "io.zonky.test:embedded-postgres:2.0.4"
+    testImplementation "uk.org.webcompere:system-stubs-jupiter:1.1.0"
 }
 
 tasks.withType(Test) {

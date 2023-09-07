@@ -1,5 +1,6 @@
 package no.nav.sf.arkiv.database
 
+import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
 import no.nav.sf.arkiv.Metrics
 import no.nav.sf.arkiv.isDev
@@ -28,7 +29,7 @@ import java.sql.ResultSet
 private val log = KotlinLogging.logger { }
 
 object DB {
-    val postgresDatabase = PostgresDatabase()
+    var dataSource: HikariDataSource? = null
 
     fun addArchive(requestBody: Array<ArkivModel>): List<ArkivResponse> {
         if (isDev) {
@@ -36,7 +37,7 @@ object DB {
         } else {
             log.info { "Call to addArchive" }
         }
-        Database.connect(postgresDatabase.dataSource)
+        connectToDatabase()
         val result: MutableList<ArkivResponse> = mutableListOf()
         transaction {
 
@@ -143,7 +144,7 @@ object DB {
     fun henteArchive(henteRequest: HenteModel): List<HenteResponse> {
         if (isDev) log.info { "henteArchive henteRequest: $henteRequest (Log in dev)" }
         log.info { "Connecting to db for hente" }
-        Database.connect(postgresDatabase.dataSource)
+        connectToDatabase()
         var result: List<HenteResponse> = listOf()
         transaction {
             val query = ArkivV3.selectAll()
@@ -187,7 +188,7 @@ object DB {
     fun henteArchiveV4(henteRequest: HenteModel): List<HenteResponse> {
         if (isDev) log.info { "henteArchive v4 henteRequest: $henteRequest (Log in dev)" }
         log.info { "Connecting to db for hente v4" }
-        Database.connect(postgresDatabase.dataSource)
+        connectToDatabase()
         var result: List<HenteResponse> = listOf()
         transaction {
             val query = ArkivV4.selectAll()
@@ -229,7 +230,7 @@ object DB {
     }
 
     fun entryIdOfDokumentasjonId(dokumentasjonId: String): Int {
-        Database.connect(postgresDatabase.dataSource)
+        connectToDatabase()
 
         var result: Int = -1
         transaction {
@@ -254,7 +255,9 @@ object DB {
             dokumentasjon
         }
     }
-
     private val fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
     val fmt_onlyDay = DateTimeFormat.forPattern("yyyy-MM-dd")
+
+    private fun connectToDatabase() = Database.connect(dataSource ?: createAndSetDataSource())
+    private fun createAndSetDataSource() = PostgresDatabase().dataSource.apply { dataSource = this }
 }
