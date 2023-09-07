@@ -1,6 +1,7 @@
 package no.nav.sf.arkiv
 
 import io.ktor.application.Application
+import io.ktor.application.ApplicationStopped
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
@@ -47,6 +48,8 @@ private val log = KotlinLogging.logger { }
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
 
+    val appState = monitorState(this)
+
     install(ContentNegotiation) {
         gson {
             setPrettyPrinting()
@@ -58,7 +61,7 @@ fun Application.module(testing: Boolean = false) {
             resources("static")
             defaultResource("static/index.html")
         }
-        podAPI()
+        podAPI(appState)
         prometheusAPI()
         get("/authping") {
             log.info { "Incoming call authping" }
@@ -123,6 +126,14 @@ fun Application.module(testing: Boolean = false) {
     scheduleServerShutdown()
 }
 
+private fun monitorState(app: Application): ApplicationState =
+    ApplicationState().apply {
+        app.environment.monitor.subscribe(ApplicationStopped) {
+            ready = false
+            alive = false
+        }
+    }
+
 fun doAddTestData() {
     val archiveModel = ArkivModel(fnr = "11111", aktoerid = "11111", tema = "itest", dokumentasjon = UUID.randomUUID().toString(), dokumentdato = "2044-01-01")
     val archiveModel2 = ArkivModel(fnr = "22222", aktoerid = "22222", tema = "itest", dokumentasjon = UUID.randomUUID().toString(), dokumentdato = "2044-01-01")
@@ -163,3 +174,8 @@ fun scheduleServerShutdown() {
         System.exit(0)
     }
 }
+
+data class ApplicationState(
+    var alive: Boolean = true,
+    var ready: Boolean = true,
+)
