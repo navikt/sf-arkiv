@@ -8,6 +8,9 @@ env:
 jobs:
   build:
     name: Build and push Docker container
+    permissions:
+      packages: write
+      contents: read
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -55,14 +58,14 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
           RESOURCE: .nais/dev.yaml
-  deploy-prod:
-    name: Deploy to prod NAIS
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-fss
-          RESOURCE: .nais/prod.yaml
+#  deploy-prod:
+#    name: Deploy to prod NAIS
+#    needs: build
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: nais/deploy/actions/deploy@v1
+#        env:
+#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+#          CLUSTER: prod-fss
+#          RESOURCE: .nais/prod.yaml

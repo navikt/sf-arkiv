@@ -15,7 +15,6 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
-import io.prometheus.client.exporter.common.TextFormat
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -30,7 +29,6 @@ import no.nav.sf.arkiv.model.hasValidDokumentDato
 import no.nav.sf.arkiv.model.isEmpty
 import no.nav.sf.arkiv.token.containsValidToken
 import java.io.File
-import java.io.StringWriter
 import java.sql.SQLTransientConnectionException
 import java.time.LocalDateTime
 import java.time.LocalTime
