@@ -1,12 +1,20 @@
 package no.nav.sf.arkiv
 
 import io.ktor.application.call
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.http.HttpStatusCode.Companion.OK
+import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.get
+import io.ktor.routing.post
 import io.prometheus.client.exporter.common.TextFormat
+import no.nav.sf.arkiv.database.DB
+import no.nav.sf.arkiv.model.HenteModel
+import no.nav.sf.arkiv.model.hasValidDokumentDato
+import no.nav.sf.arkiv.model.isEmpty
+import no.nav.sf.arkiv.token.containsValidToken
 import java.io.StringWriter
 
 fun Routing.podAPI(appState: ApplicationState) {
@@ -35,5 +43,26 @@ fun Routing.prometheusAPI() {
                 str
             }.toString()
         )
+    }
+}
+
+fun Routing.henteAPI() {
+    post("/hente") {
+        Metrics.requestHente.inc()
+        val requestBody = call.receive<HenteModel>()
+        val devBypass = isDev && requestBody.kilde == "test"
+        if (devBypass || containsValidToken(call.request)) {
+            log.info { "Authorized call to Hente" }
+            if (requestBody.isEmpty()) {
+                call.respond(HttpStatusCode.BadRequest, "Request contains no search parameters, that is not allowed")
+            }
+            if (!requestBody.hasValidDokumentDato()) {
+                call.respond(HttpStatusCode.BadRequest, "Request contains invalid dokumentdato (correct format is empty or yyyy-MM-dd)")
+            }
+            call.respond(HttpStatusCode.OK, DB.henteArchive(requestBody) + DB.henteArchiveV4(requestBody))
+        } else {
+            log.info { "Hente call denied - missing valid token" }
+            call.respond(HttpStatusCode.Unauthorized)
+        }
     }
 }
