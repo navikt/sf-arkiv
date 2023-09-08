@@ -46,7 +46,7 @@ fun Routing.prometheusAPI() {
     }
 }
 
-fun Routing.henteAPI() {
+fun Routing.henteAPI(database: DB = DB) {
     post("/hente") {
         Metrics.requestHente.inc()
         val requestBody = call.receive<HenteModel>()
@@ -59,7 +59,7 @@ fun Routing.henteAPI() {
             if (!requestBody.hasValidDokumentDato()) {
                 call.respond(HttpStatusCode.BadRequest, "Request contains invalid dokumentdato (correct format is empty or yyyy-MM-dd)")
             }
-            call.respond(HttpStatusCode.OK, DB.henteArchive(requestBody) + DB.henteArchiveV4(requestBody))
+            call.respond(OK, database.henteArchive(requestBody) + database.henteArchiveV4(requestBody))
         } else {
             log.info { "Hente call denied - missing valid token" }
             call.respond(HttpStatusCode.Unauthorized)
