@@ -26,7 +26,6 @@ import no.nav.sf.arkiv.database.DB.henteArchiveV4
 import no.nav.sf.arkiv.model.ArkivModel
 import no.nav.sf.arkiv.model.HenteModel
 import no.nav.sf.arkiv.model.hasValidDokumentDato
-import no.nav.sf.arkiv.model.isEmpty
 import no.nav.sf.arkiv.token.containsValidToken
 import java.io.File
 import java.sql.SQLTransientConnectionException
@@ -41,7 +40,7 @@ val mountPath = System.getenv("MOUNT_PATH")
 val dbName = System.getenv("DB_NAME")
 val dbUrl = System.getenv("DB_URL")
 
-private val log = KotlinLogging.logger { }
+val log = KotlinLogging.logger { }
 
 @OptIn(DelicateCoroutinesApi::class)
 @Suppress("unused") // Referenced in application.conf
@@ -63,6 +62,7 @@ fun Application.module(testing: Boolean = false) {
         }
         podAPI(appState)
         prometheusAPI()
+        henteAPI()
         get("/authping") {
             log.info { "Incoming call authping" }
             val valid = containsValidToken(call.request)
@@ -98,24 +98,6 @@ fun Application.module(testing: Boolean = false) {
                 } else {
                     throw e
                 }
-            }
-        }
-        post("/hente") {
-            Metrics.requestHente.inc()
-            val requestBody = call.receive<HenteModel>()
-            val devBypass = isDev && requestBody.kilde == "test"
-            if (devBypass || containsValidToken(call.request)) {
-                log.info { "Authorized call to Hente" }
-                if (requestBody.isEmpty()) {
-                    call.respond(HttpStatusCode.BadRequest, "Request contains no search parameters, that is not allowed")
-                }
-                if (!requestBody.hasValidDokumentDato()) {
-                    call.respond(HttpStatusCode.BadRequest, "Request contains invalid dokumentdato (correct format is empty or yyyy-MM-dd)")
-                }
-                call.respond(HttpStatusCode.OK, henteArchive(requestBody) + henteArchiveV4(requestBody))
-            } else {
-                log.info { "Hente call denied - missing valid token" }
-                call.respond(HttpStatusCode.Unauthorized)
             }
         }
     }
