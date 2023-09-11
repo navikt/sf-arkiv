@@ -12,6 +12,7 @@ import io.ktor.http.HttpMethod.Companion.Get
 import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.OK
+import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.TestApplicationRequest
@@ -24,6 +25,7 @@ import no.nav.sf.arkiv.model.ArkivV3
 import no.nav.sf.arkiv.model.ArkivV4
 import no.nav.sf.arkiv.model.HenteModel
 import no.nav.sf.arkiv.model.HenteResponse
+import no.nav.sf.arkiv.token.Validation
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.insert
@@ -47,6 +49,7 @@ class ApplicationTest {
     private lateinit var embededDataSource: HikariDataSource
     private lateinit var testDatabase: DB
     private lateinit var testEnvironment: Environment
+    private lateinit var testValdator: Validation
 
     @BeforeAll
     fun up() {
@@ -63,6 +66,7 @@ class ApplicationTest {
         henteModel = HenteModel(kilde = "test", dokumentdato = "2020-01-01")
         arkivModel = ArkivModel(kilde = "test", dokumentdato = "2020-01-01")
         testEnvironment = TestEnvironment()
+        testValdator = StubTokenValidation(true)
     }
 
     @AfterAll
@@ -137,6 +141,21 @@ class ApplicationTest {
         }
     }
 
+    @Test
+    fun `post hente with not valid token should answer unauthorized`() {
+        henteModel = HenteModel(kilde = "prod")
+        testValdator = StubTokenValidation(false)
+        with(testApplicationEngine()) {
+            with(
+                handleRequest(Post, "/hente") {
+                    payload(henteModel)
+                }
+            ) {
+                assertEquals(Unauthorized, response.status())
+            }
+        }
+    }
+
     private fun testApplicationEngine() =
         TestApplicationEngine().apply {
             start()
@@ -144,7 +163,7 @@ class ApplicationTest {
             application.routing {
                 podAPI(appState)
                 prometheusAPI()
-                henteAPI(database = testDatabase, env = testEnvironment)
+                henteAPI(database = testDatabase, env = testEnvironment, validator = testValdator)
             }
         }
 

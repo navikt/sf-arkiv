@@ -11,39 +11,47 @@ import java.net.URL
 
 const val env_AZURE_APP_WELL_KNOWN_URL = "AZURE_APP_WELL_KNOWN_URL"
 const val env_AZURE_APP_CLIENT_ID = "AZURE_APP_CLIENT_ID"
-
-private val log = KotlinLogging.logger { }
 const val claim_NAME = "name"
 
-val multiIssuerConfiguration = MultiIssuerConfiguration(
-    mapOf(
-        "azure" to IssuerProperties(
-            URL(System.getenv(env_AZURE_APP_WELL_KNOWN_URL)),
-            listOf(System.getenv(env_AZURE_APP_CLIENT_ID))
-        )
-    )
-)
+private val log = KotlinLogging.logger { }
 
-private val jwtTokenValidationHandler = JwtTokenValidationHandler(multiIssuerConfiguration)
-
-fun containsValidToken(request: ApplicationRequest): Boolean {
-    val firstValidToken = jwtTokenValidationHandler.getValidatedTokens(fromApplicationRequest(request)).firstValidToken
-    if (!firstValidToken.isPresent) {
-        val h = request.headers.get("Authorization")
-        File("/tmp/latestheaderatfailed").writeText(h ?: "null")
-    }
-    return firstValidToken.isPresent
+interface Validation {
+    fun containsValidToken(request: ApplicationRequest): Boolean
 }
 
-private fun fromApplicationRequest(
-    request: ApplicationRequest
-): HttpRequest {
-    return object : HttpRequest {
-        override fun getHeader(headerName: String): String {
-            return request.headers[headerName] ?: ""
+open class TokenValidation : Validation {
+    private val multiIssuerConfiguration = MultiIssuerConfiguration(
+        mapOf(
+            "azure" to IssuerProperties(
+                URL(System.getenv(env_AZURE_APP_WELL_KNOWN_URL)),
+                listOf(System.getenv(env_AZURE_APP_CLIENT_ID))
+            )
+        )
+    )
+
+    private val jwtTokenValidationHandler = JwtTokenValidationHandler(multiIssuerConfiguration)
+
+    override fun containsValidToken(request: ApplicationRequest): Boolean {
+        val firstValidToken =
+            jwtTokenValidationHandler.getValidatedTokens(fromApplicationRequest(request)).firstValidToken
+        if (!firstValidToken.isPresent) {
+            val h = request.headers.get("Authorization")
+            File("/tmp/latestheaderatfailed").writeText(h ?: "null")
         }
-        override fun getCookies(): Array<HttpRequest.NameValue> {
-            return arrayOf()
+        return firstValidToken.isPresent
+    }
+
+    private fun fromApplicationRequest(
+        request: ApplicationRequest
+    ): HttpRequest {
+        return object : HttpRequest {
+            override fun getHeader(headerName: String): String {
+                return request.headers[headerName] ?: ""
+            }
+
+            override fun getCookies(): Array<HttpRequest.NameValue> {
+                return arrayOf()
+            }
         }
     }
 }
