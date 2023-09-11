@@ -39,7 +39,7 @@ jobs:
       - name: Build JAR
         env:
           GITHUB_TOKEN: ${{ secrets.GPR_READ }}
-        run: ./gradlew clean build shadowJar -x test
+        run: ./gradlew clean build shadowJar
       - name: Build and publish Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
