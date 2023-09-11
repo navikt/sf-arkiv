@@ -49,11 +49,11 @@ fun Routing.prometheusAPI() {
     }
 }
 
-fun Routing.henteAPI(database: DB = DB) {
+fun Routing.henteAPI(database: DB = DB, env: Environment = Environment()) {
     post("/hente") {
         Metrics.requestHente.inc()
         val requestBody = call.receive<HenteModel>()
-        val devBypass = isDev && requestBody.kilde == "test"
+        val devBypass = env.isDev && requestBody.kilde == "test"
         if (devBypass || containsValidToken(call.request)) {
             log.info { "Authorized call to Hente" }
             if (requestBody.isEmpty()) {
@@ -70,12 +70,12 @@ fun Routing.henteAPI(database: DB = DB) {
     }
 }
 
-fun Routing.arkivAPI(database: DB = DB) {
+fun Routing.arkivAPI(database: DB = DB, env: Environment = Environment()) {
     post("/arkiv") {
         Metrics.requestArkiv.inc()
         try {
             val requestBody = call.receive<Array<ArkivModel>>()
-            val devBypass = isDev && requestBody.first().kilde == "test"
+            val devBypass = env.isDev && requestBody.first().kilde == "test"
             if (devBypass || containsValidToken(call.request)) {
                 log.info { "Authorized call to Arkiv" }
                 if (requestBody.any { !it.hasValidDokumentDato() }) {

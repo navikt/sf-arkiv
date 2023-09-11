@@ -2,19 +2,15 @@ package no.nav.sf.arkiv.database
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import mu.KotlinLogging
-import no.nav.sf.arkiv.dbName
-import no.nav.sf.arkiv.dbUrl
-import no.nav.sf.arkiv.mountPath
+import no.nav.sf.arkiv.Environment
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 
-class PostgresDatabase {
+class PostgresDatabase(env: Environment) {
 
-    private val log = KotlinLogging.logger { }
-
-    private val vaultMountPath = mountPath
-    private val adminUsername = "$dbName-admin"
-    private val username = "$dbName-user"
+    private val vaultMountPath = env.mountPath
+    private val adminUsername = "${env.dbName}-admin"
+    private val username = "${env.dbName}-user"
+    private val dbUrl = env.dbUrl
 
     val dataSource: HikariDataSource = dataSource()
 
