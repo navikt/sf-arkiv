@@ -89,6 +89,7 @@ fun Routing.arkivAPI(database: DB = DB, env: Environment = Environment(), valida
                         HttpStatusCode.BadRequest,
                         "One or more payload contain invalid dokumentdato (correct format is yyyy-MM-dd)"
                     )
+                    return@post
                 }
                 val result = database.addArchive(requestBody)
                 result.firstOrNull()?.let {
