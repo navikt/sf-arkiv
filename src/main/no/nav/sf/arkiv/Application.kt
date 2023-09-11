@@ -26,11 +26,12 @@ import java.time.ZoneId
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-val isDev: Boolean = System.getenv("KTOR_ENV") == "dev"
-val mountPath = System.getenv("MOUNT_PATH")
-val dbName = System.getenv("DB_NAME")
-val dbUrl = System.getenv("DB_URL")
-
+open class Environment {
+    open val isDev: Boolean = System.getenv("KTOR_ENV") == "dev"
+    val mountPath = System.getenv("MOUNT_PATH")
+    val dbName = System.getenv("DB_NAME")
+    val dbUrl = System.getenv("DB_URL")
+}
 val log = KotlinLogging.logger { }
 
 @OptIn(DelicateCoroutinesApi::class)
