@@ -59,12 +59,14 @@ fun Routing.henteAPI(database: DB = DB, env: Environment = Environment(), valida
             log.info { "Authorized call to Hente" }
             if (requestBody.isEmpty()) {
                 call.respond(HttpStatusCode.BadRequest, "Request contains no search parameters, that is not allowed")
+                return@post
             }
             if (!requestBody.hasValidDokumentDato()) {
                 call.respond(
                     HttpStatusCode.BadRequest,
                     "Request contains invalid dokumentdato (correct format is empty or yyyy-MM-dd)"
                 )
+                return@post
             }
             call.respond(OK, database.henteArchive(requestBody) + database.henteArchiveV4(requestBody))
         } else {
