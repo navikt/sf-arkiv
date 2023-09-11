@@ -2,8 +2,8 @@ package no.nav.sf.arkiv.database
 
 import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
+import no.nav.sf.arkiv.Environment
 import no.nav.sf.arkiv.Metrics
-import no.nav.sf.arkiv.isDev
 import no.nav.sf.arkiv.model.ArkivModel
 import no.nav.sf.arkiv.model.ArkivResponse
 import no.nav.sf.arkiv.model.ArkivV3
@@ -30,9 +30,10 @@ private val log = KotlinLogging.logger { }
 
 object DB {
     var dbSouce: HikariDataSource? = null
+    val env: Environment = Environment()
 
     fun addArchive(requestBody: Array<ArkivModel>): List<ArkivResponse> {
-        if (isDev) {
+        if (env.isDev) {
             log.info { "Call to addArchive requestBody: ${requestBody.toList()} (Log in dev)" }
         } else {
             log.info { "Call to addArchive" }
@@ -142,7 +143,7 @@ object DB {
     }
 
     fun henteArchive(henteRequest: HenteModel): List<HenteResponse> {
-        if (isDev) log.info { "henteArchive henteRequest: $henteRequest (Log in dev)" }
+        if (env.isDev) log.info { "henteArchive henteRequest: $henteRequest (Log in dev)" }
         log.info { "Connecting to db for hente" }
         connectToDatabase()
         var result: List<HenteResponse> = listOf()
@@ -186,7 +187,7 @@ object DB {
     }
 
     fun henteArchiveV4(henteRequest: HenteModel): List<HenteResponse> {
-        if (isDev) log.info { "henteArchive v4 henteRequest: $henteRequest (Log in dev)" }
+        if (env.isDev) log.info { "henteArchive v4 henteRequest: $henteRequest (Log in dev)" }
         log.info { "Connecting to db for hente v4" }
         connectToDatabase()
         var result: List<HenteResponse> = listOf()
@@ -257,7 +258,7 @@ object DB {
     }
 
     private fun connectToDatabase() = Database.connect(dbSouce ?: createAndSetDataSource())
-    private fun createAndSetDataSource() = PostgresDatabase().dataSource.apply { dbSouce }
+    private fun createAndSetDataSource() = PostgresDatabase(env).dataSource.apply { dbSouce }
 
     private val fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
     val fmt_onlyDay = DateTimeFormat.forPattern("yyyy-MM-dd")
