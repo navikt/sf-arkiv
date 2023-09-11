@@ -11,11 +11,14 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.prometheus.client.exporter.common.TextFormat
 import no.nav.sf.arkiv.database.DB
+import no.nav.sf.arkiv.model.ArkivModel
 import no.nav.sf.arkiv.model.HenteModel
 import no.nav.sf.arkiv.model.hasValidDokumentDato
 import no.nav.sf.arkiv.model.isEmpty
 import no.nav.sf.arkiv.token.containsValidToken
+import java.io.File
 import java.io.StringWriter
+import java.sql.SQLTransientConnectionException
 
 fun Routing.podAPI(appState: ApplicationState) {
     get("/internal/is_alive") {
@@ -63,6 +66,44 @@ fun Routing.henteAPI(database: DB = DB) {
         } else {
             log.info { "Hente call denied - missing valid token" }
             call.respond(HttpStatusCode.Unauthorized)
+        }
+    }
+}
+
+fun Routing.arkivAPI(database: DB = DB) {
+    post("/arkiv") {
+        Metrics.requestArkiv.inc()
+        try {
+            val requestBody = call.receive<Array<ArkivModel>>()
+            val devBypass = isDev && requestBody.first().kilde == "test"
+            if (devBypass || containsValidToken(call.request)) {
+                log.info { "Authorized call to Arkiv" }
+                if (requestBody.any { !it.hasValidDokumentDato() }) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "One or more payload contain invalid dokumentdato (correct format is yyyy-MM-dd)"
+                    )
+                }
+                val result = database.addArchive(requestBody)
+                result.firstOrNull()?.let {
+                    File("/tmp/exampleResponseEntity").writeText(it.toString())
+                }
+                Metrics.insertedEntries.inc(result.size.toDouble())
+                call.respond(HttpStatusCode.Created, result)
+            } else {
+                log.info { "Arkiv call denied - missing valid token" }
+                call.respond(HttpStatusCode.Unauthorized)
+            }
+        } catch (e: Exception) {
+            Metrics.issues.inc()
+            if (e is SQLTransientConnectionException) {
+                call.respond(
+                    HttpStatusCode.ServiceUnavailable,
+                    "Caught transient connection exception, message: ${e.message}"
+                )
+            } else {
+                throw e
+            }
         }
     }
 }
