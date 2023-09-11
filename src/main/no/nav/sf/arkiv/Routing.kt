@@ -15,7 +15,8 @@ import no.nav.sf.arkiv.model.ArkivModel
 import no.nav.sf.arkiv.model.HenteModel
 import no.nav.sf.arkiv.model.hasValidDokumentDato
 import no.nav.sf.arkiv.model.isEmpty
-import no.nav.sf.arkiv.token.containsValidToken
+import no.nav.sf.arkiv.token.TokenValidation
+import no.nav.sf.arkiv.token.Validation
 import java.io.File
 import java.io.StringWriter
 import java.sql.SQLTransientConnectionException
@@ -49,18 +50,21 @@ fun Routing.prometheusAPI() {
     }
 }
 
-fun Routing.henteAPI(database: DB = DB, env: Environment = Environment()) {
+fun Routing.henteAPI(database: DB = DB, env: Environment = Environment(), validator: Validation = TokenValidation()) {
     post("/hente") {
         Metrics.requestHente.inc()
         val requestBody = call.receive<HenteModel>()
         val devBypass = env.isDev && requestBody.kilde == "test"
-        if (devBypass || containsValidToken(call.request)) {
+        if (devBypass || validator.containsValidToken(call.request)) {
             log.info { "Authorized call to Hente" }
             if (requestBody.isEmpty()) {
                 call.respond(HttpStatusCode.BadRequest, "Request contains no search parameters, that is not allowed")
             }
             if (!requestBody.hasValidDokumentDato()) {
-                call.respond(HttpStatusCode.BadRequest, "Request contains invalid dokumentdato (correct format is empty or yyyy-MM-dd)")
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    "Request contains invalid dokumentdato (correct format is empty or yyyy-MM-dd)"
+                )
             }
             call.respond(OK, database.henteArchive(requestBody) + database.henteArchiveV4(requestBody))
         } else {
@@ -70,13 +74,13 @@ fun Routing.henteAPI(database: DB = DB, env: Environment = Environment()) {
     }
 }
 
-fun Routing.arkivAPI(database: DB = DB, env: Environment = Environment()) {
+fun Routing.arkivAPI(database: DB = DB, env: Environment = Environment(), validator: Validation = TokenValidation()) {
     post("/arkiv") {
         Metrics.requestArkiv.inc()
         try {
             val requestBody = call.receive<Array<ArkivModel>>()
             val devBypass = env.isDev && requestBody.first().kilde == "test"
-            if (devBypass || containsValidToken(call.request)) {
+            if (devBypass || validator.containsValidToken(call.request)) {
                 log.info { "Authorized call to Arkiv" }
                 if (requestBody.any { !it.hasValidDokumentDato() }) {
                     call.respond(
