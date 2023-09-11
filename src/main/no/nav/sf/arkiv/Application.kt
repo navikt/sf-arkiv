@@ -2,17 +2,12 @@ package no.nav.sf.arkiv
 
 import io.ktor.application.Application
 import io.ktor.application.ApplicationStopped
-import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
 import io.ktor.gson.gson
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.defaultResource
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
-import io.ktor.request.receive
-import io.ktor.response.respond
-import io.ktor.routing.post
 import io.ktor.routing.routing
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -24,10 +19,7 @@ import no.nav.sf.arkiv.database.DB.henteArchive
 import no.nav.sf.arkiv.database.DB.henteArchiveV4
 import no.nav.sf.arkiv.model.ArkivModel
 import no.nav.sf.arkiv.model.HenteModel
-import no.nav.sf.arkiv.model.hasValidDokumentDato
-import no.nav.sf.arkiv.token.containsValidToken
 import java.io.File
-import java.sql.SQLTransientConnectionException
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
@@ -62,38 +54,7 @@ fun Application.module(testing: Boolean = false) {
         podAPI(appState)
         prometheusAPI()
         henteAPI()
-        post("/arkiv") {
-            Metrics.requestArkiv.inc()
-            try {
-                val requestBody = call.receive<Array<ArkivModel>>()
-                val devBypass = isDev && requestBody.first().kilde == "test"
-                if (devBypass || containsValidToken(call.request)) {
-                    log.info { "Authorized call to Arkiv" }
-                    if (requestBody.any { !it.hasValidDokumentDato() }) {
-                        call.respond(
-                            HttpStatusCode.BadRequest,
-                            "One or more payload contain invalid dokumentdato (correct format is yyyy-MM-dd)"
-                        )
-                    }
-                    val result = addArchive(requestBody)
-                    result.firstOrNull()?.let {
-                        File("/tmp/exampleResponseEntity").writeText(it.toString())
-                    }
-                    Metrics.insertedEntries.inc(result.size.toDouble())
-                    call.respond(HttpStatusCode.Created, result)
-                } else {
-                    log.info { "Arkiv call denied - missing valid token" }
-                    call.respond(HttpStatusCode.Unauthorized)
-                }
-            } catch (e: Exception) {
-                Metrics.issues.inc()
-                if (e is SQLTransientConnectionException) {
-                    call.respond(HttpStatusCode.ServiceUnavailable, "Caught transient connection exception, message: ${e.message}")
-                } else {
-                    throw e
-                }
-            }
-        }
+        arkivAPI()
     }
 
 //  doAddTestData()
