@@ -145,7 +145,8 @@ class ApplicationTest {
     @Test
     fun `post hente with not valid token should answer unauthorized`() {
         henteModel = HenteModel(kilde = "prod")
-        testValdator = StubTokenValidation(false)
+        testEnvironment = TestEnvironment(isDevelop = false)
+        testValdator = StubTokenValidation(isValid = false)
         with(testApplicationEngine()) {
             with(
                 handleRequest(Post, "/hente") {
@@ -186,6 +187,63 @@ class ApplicationTest {
         }
     }
 
+    @Test
+    fun `post arkiv with valid payload should answer created`() {
+        with(testApplicationEngine()) {
+            with(
+                handleRequest(Post, "/arkiv") {
+                    payload(arrayOf(arkivModel))
+                }
+            ) {
+                assertEquals(HttpStatusCode.Created, response.status())
+            }
+        }
+    }
+
+    @Test
+    fun `post arkiv with not valid token should answer unauthorized`() {
+        testEnvironment = TestEnvironment(isDevelop = false)
+        testValdator = StubTokenValidation(isValid = false)
+        with(testApplicationEngine()) {
+            with(
+                handleRequest(Post, "/arkiv") {
+                    payload(arrayOf(arkivModel))
+                }
+            ) {
+                assertEquals(Unauthorized, response.status())
+            }
+        }
+    }
+
+    @Test
+    fun `post arkiv with wrong dokumentdato should answer bad request`() {
+        arkivModel.dokumentdato = "01-01-2020"
+        with(testApplicationEngine()) {
+            with(
+                handleRequest(Post, "/arkiv") {
+                    payload(arrayOf(arkivModel))
+                }
+            ) {
+                assertEquals(BadRequest, response.status())
+            }
+        }
+    }
+
+    @Test
+    fun `post arkiv with valid access token should answer created`() {
+        arkivModel.kilde = "prod"
+        testValdator = StubTokenValidation(true)
+        with(testApplicationEngine()) {
+            with(
+                handleRequest(Post, "/arkiv") {
+                    payload(arrayOf(arkivModel))
+                }
+            ) {
+                assertEquals(HttpStatusCode.Created, response.status())
+            }
+        }
+    }
+
     private fun testApplicationEngine() =
         TestApplicationEngine().apply {
             start()
@@ -194,6 +252,7 @@ class ApplicationTest {
                 podAPI(appState)
                 prometheusAPI()
                 henteAPI(database = testDatabase, env = testEnvironment, validator = testValdator)
+                arkivAPI(database = testDatabase, env = testEnvironment, validator = testValdator)
             }
         }
 
