@@ -11,6 +11,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod.Companion.Get
 import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.routing.routing
@@ -152,6 +153,35 @@ class ApplicationTest {
                 }
             ) {
                 assertEquals(Unauthorized, response.status())
+            }
+        }
+    }
+
+    @Test
+    fun `post hente with wrong dokumentdato should answer bad request`() {
+        henteModel = HenteModel(kilde = "test", dokumentdato = "01-01-2020")
+        with(testApplicationEngine()) {
+            with(
+                handleRequest(Post, "/hente") {
+                    payload(henteModel)
+                }
+            ) {
+                assertEquals(BadRequest, response.status())
+            }
+        }
+    }
+
+    @Test
+    fun `post hente with empty payload should answer bad request`() {
+        henteModel = HenteModel()
+        testValdator = StubTokenValidation(true)
+        with(testApplicationEngine()) {
+            with(
+                handleRequest(Post, "/hente") {
+                    payload(henteModel)
+                }
+            ) {
+                assertEquals(BadRequest, response.status())
             }
         }
     }
