@@ -29,7 +29,7 @@ import java.sql.ResultSet
 private val log = KotlinLogging.logger { }
 
 object DB {
-    var dbSouce: HikariDataSource? = null
+    var dbSource: HikariDataSource? = null
     val env: Environment = Environment()
 
     fun addArchive(requestBody: Array<ArkivModel>): List<ArkivResponse> {
@@ -257,8 +257,8 @@ object DB {
         }
     }
 
-    private fun connectToDatabase() = Database.connect(dbSouce ?: createAndSetDataSource())
-    private fun createAndSetDataSource() = PostgresDatabase(env).dataSource.apply { dbSouce }
+    private fun connectToDatabase() = Database.connect(dbSource ?: createAndSetDataSource())
+    private fun createAndSetDataSource() = PostgresDatabase(env).dataSource.apply { dbSource }
 
     private val fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
     val fmt_onlyDay = DateTimeFormat.forPattern("yyyy-MM-dd")

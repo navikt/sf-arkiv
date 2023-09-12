@@ -46,17 +46,17 @@ class ApplicationTest {
     private lateinit var objectMapper: ObjectMapper
     private lateinit var henteModel: HenteModel
     private lateinit var arkivModel: ArkivModel
-    private lateinit var embededDatabase: EmbeddedPostgresDatabase
-    private lateinit var embededDataSource: HikariDataSource
+    private lateinit var embeddedDatabase: EmbeddedPostgresDatabase
+    private lateinit var embeddedDataSource: HikariDataSource
     private lateinit var testDatabase: DB
     private lateinit var testEnvironment: Environment
     private lateinit var testValdator: Validation
 
     @BeforeAll
     fun up() {
-        embededDatabase = EmbeddedPostgresDatabase()
-        embededDataSource = embededDatabase.datasource()
-        testDatabase = DB.apply { dbSouce = embededDataSource }
+        embeddedDatabase = EmbeddedPostgresDatabase()
+        embeddedDataSource = embeddedDatabase.datasource()
+        testDatabase = DB.apply { dbSource = embeddedDataSource }
         setupDatabaseSchemas()
     }
 
@@ -72,7 +72,7 @@ class ApplicationTest {
 
     @AfterAll
     fun down() {
-        embededDatabase.stop()
+        embeddedDatabase.stop()
     }
 
     @Test
@@ -295,7 +295,7 @@ class ApplicationTest {
         objectMapper.readValue(this.byteContent, T::class.java)
 
     private fun doInTransaction(dbStuff: () -> Unit) {
-        Database.connect(embededDataSource)
+        Database.connect(embeddedDataSource)
         transaction {
             dbStuff()
         }
