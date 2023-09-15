@@ -45,12 +45,6 @@ spec:
       enabled: true
       allowAllUsers: true
       tenant: trygdeetaten.no
-  accessPolicy:
-    inbound:
-      rules:
-        - application: salesforce
-          namespace: teamcrm
-          cluster: dev-external
   env:
     - name: KTOR_ENV
       value: dev
