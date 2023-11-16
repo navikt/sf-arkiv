@@ -258,7 +258,7 @@ object DB {
     }
 
     private fun connectToDatabase() = Database.connect(dbSource ?: createAndSetDataSource())
-    private fun createAndSetDataSource() = PostgresDatabase(env).dataSource.apply { dbSource }
+    private fun createAndSetDataSource() = PostgresDatabase(env).dataSource.apply { dbSource = this }
 
     private val fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
     val fmt_onlyDay = DateTimeFormat.forPattern("yyyy-MM-dd")
