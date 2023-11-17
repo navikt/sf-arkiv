@@ -127,7 +127,7 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
-    doAddTestData()
+    // doAddTestData()
     // health check
     doSearch()
     scheduleServerShutdown()
