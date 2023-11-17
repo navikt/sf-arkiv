@@ -4,7 +4,6 @@ import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
-import io.ktor.features.toLogString
 import io.ktor.gson.gson
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.defaultResource
@@ -114,7 +113,6 @@ fun Application.module(testing: Boolean = false) {
             }
         }
         post("/hente") {
-            File("/tmp/requestlogstring").writeText(call.request.toLogString())
             Metrics.requestHente.inc()
             val requestBody = call.receive<HenteModel>()
             val devBypass = isDev && requestBody.kilde == "test"
