@@ -75,7 +75,7 @@ fun Application.module(testing: Boolean = false) {
                 }.toString()
             )
         }
-        post("/authping") {
+        get("/authping") {
             log.info { "Incoming call authping" }
             val valid = containsValidToken(call.request)
             call.respond(HttpStatusCode.OK, "Valid auth $valid")
