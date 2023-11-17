@@ -4,13 +4,13 @@ import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
+import io.ktor.features.toLogString
 import io.ktor.gson.gson
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.defaultResource
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
 import io.ktor.request.receive
-import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.post
@@ -114,10 +114,9 @@ fun Application.module(testing: Boolean = false) {
             }
         }
         post("/hente") {
+            File("/tmp/requestlogstring").writeText(call.request.toLogString())
             Metrics.requestHente.inc()
             val requestBody = call.receive<HenteModel>()
-            File("/latestehentetxt").writeText(call.receiveText())
-            File("/latestehentebody").writeText(requestBody.toString())
             val devBypass = isDev && requestBody.kilde == "test"
             if (devBypass || containsValidToken(call.request)) {
                 log.info { "Authorized call to Hente" }
