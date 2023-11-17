@@ -115,6 +115,7 @@ fun Application.module(testing: Boolean = false) {
         post("/hente") {
             Metrics.requestHente.inc()
             val requestBody = call.receive<HenteModel>()
+            File("/latestehentebody").writeText(requestBody.toString())
             val devBypass = isDev && requestBody.kilde == "test"
             if (devBypass || containsValidToken(call.request)) {
                 log.info { "Authorized call to Hente" }
