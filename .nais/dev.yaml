@@ -49,6 +49,9 @@ spec:
   accessPolicy:
     inbound:
       rules:
+        - application: itestapp
+          namespace: teamcrm
+          cluster: dev-gcp
         - application: salesforce
           namespace: teamcrm
           cluster: dev-external
