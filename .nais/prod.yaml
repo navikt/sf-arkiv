@@ -51,6 +51,9 @@ spec:
         - application: itestapp
           namespace: teamcrm
           cluster: prod-gcp
+        - application: sf-arkiv-proxy
+          namespace: teamcrm
+          cluster: prod-gcp
         - application: salesforce
           namespace: teamcrm
           cluster: prod-external
