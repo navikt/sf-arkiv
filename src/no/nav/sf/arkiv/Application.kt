@@ -1,24 +1,12 @@
 package no.nav.sf.arkiv
 
-import io.ktor.application.Application
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.features.ContentNegotiation
-import io.ktor.gson.gson
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.defaultResource
-import io.ktor.http.content.resources
-import io.ktor.http.content.static
-import io.ktor.request.receive
-import io.ktor.response.respond
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.routing
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import io.prometheus.client.exporter.common.TextFormat
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import no.nav.sf.arkiv.database.DB.addArchive
 import no.nav.sf.arkiv.database.DB.henteArchive
@@ -27,7 +15,19 @@ import no.nav.sf.arkiv.model.ArkivModel
 import no.nav.sf.arkiv.model.HenteModel
 import no.nav.sf.arkiv.model.hasValidDokumentDato
 import no.nav.sf.arkiv.model.isEmpty
-import no.nav.sf.arkiv.token.containsValidToken
+import no.nav.sf.henvendelse.api.proxy.token.DefaultTokenValidator
+import no.nav.sf.henvendelse.api.proxy.token.TokenValidator
+import org.http4k.core.HttpHandler
+import org.http4k.core.Method
+import org.http4k.core.Response
+import org.http4k.core.Status
+import org.http4k.routing.ResourceLoader
+import org.http4k.routing.bind
+import org.http4k.routing.routes
+import org.http4k.routing.static
+import org.http4k.server.ApacheServer
+import org.http4k.server.Http4kServer
+import org.http4k.server.asServer
 import java.io.File
 import java.io.StringWriter
 import java.sql.SQLTransientConnectionException
@@ -37,112 +37,117 @@ import java.time.ZoneId
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-val isDev: Boolean = System.getenv("KTOR_ENV") == "dev"
+const val NAIS_DEFAULT_PORT = 8080
+
+val isDev: Boolean = System.getenv("CONTEXT") == "DEV"
 val mountPath = System.getenv("MOUNT_PATH")
 val dbName = System.getenv("DB_NAME")
 val dbUrl = System.getenv("DB_URL")
 
 private val log = KotlinLogging.logger { }
 
-@OptIn(DelicateCoroutinesApi::class)
-@Suppress("unused") // Referenced in application.conf
-@kotlin.jvm.JvmOverloads
-fun Application.module(testing: Boolean = false) {
+class Application(
+    val tokenValidator: TokenValidator = DefaultTokenValidator()
+) {
+    private val log = KotlinLogging.logger { }
+    val gson = GsonBuilder().setPrettyPrinting().create()
 
-    install(ContentNegotiation) {
-        gson {
-            setPrettyPrinting()
-        }
+    fun start() {
+        log.info { "Starting ${if (isDev) "DEV" else "PROD"}" }
+        apiServer(NAIS_DEFAULT_PORT).start()
+        log.info { "Started" }
+        // doAddTestData()
+        // health check
+        doSearch()
+        scheduleServerShutdown()
+        refreshLoop() // TODO Not needed.
     }
 
-    routing {
-        static("swagger") {
-            resources("static")
-            defaultResource("static/index.html")
-        }
-        get("/internal/is_alive") {
-            call.respond(HttpStatusCode.OK)
-        }
-        get("/internal/is_ready") {
-            call.respond(HttpStatusCode.OK)
-        }
-        get("/internal/prometheus") {
-            call.respond(
-                HttpStatusCode.OK,
+    tailrec fun refreshLoop() {
+        runBlocking { delay(900000) } // 15 min
+        refreshLoop()
+    }
+
+    fun apiServer(port: Int): Http4kServer = api().asServer(ApacheServer(port))
+
+    fun api(): HttpHandler = routes(
+        "/static" bind static(ResourceLoader.Classpath("/static")),
+        "/internal/is_alive" bind Method.GET to { Response(Status.OK) },
+        "/internal/is_ready" bind Method.GET to { Response(Status.OK) },
+        "/internal/prometheus" bind Method.GET to {
+            Response(Status.OK).body(
                 StringWriter().let { str ->
                     TextFormat.write004(str, Metrics.cRegistry.metricFamilySamples())
                     str
                 }.toString()
             )
-        }
-        get("/authping") {
-            log.info { "Incoming call authping" }
-            val valid = containsValidToken(call.request)
-            call.respond(HttpStatusCode.OK, "Valid auth $valid")
-        }
-        post("/arkiv") {
+        },
+        "/authping" bind Method.GET to { r ->
+            Response(Status.OK).body("Auth: ${tokenValidator.firstValidToken(r).isPresent()}")
+        },
+        "/arkiv" bind Method.POST to { r ->
             Metrics.requestArkiv.inc()
             try {
-                val requestBody = call.receive<Array<ArkivModel>>()
-                val devBypass = isDev && requestBody.first().kilde == "test"
-                if (devBypass || containsValidToken(call.request)) {
+                val typeToken = object : TypeToken<List<ArkivModel>>() {}.type
+                val arkivItems = gson.fromJson<List<ArkivModel>>(r.bodyString(), typeToken)
+                val devBypass = isDev && arkivItems.first().kilde == "test"
+                if (devBypass || tokenValidator.firstValidToken(r).isPresent()) {
                     log.info { "Authorized call to Arkiv" }
-                    if (requestBody.any { !it.hasValidDokumentDato() }) {
-                        call.respond(
-                            HttpStatusCode.BadRequest,
-                            "One or more payload contain invalid dokumentdato (correct format is yyyy-MM-dd)"
+                    if (arkivItems.any { !it.hasValidDokumentDato() }) {
+                        Response(
+                            Status.BAD_REQUEST
                         )
+                            .body("One or more payload contain invalid dokumentdato (correct format is yyyy-MM-dd)")
+                    } else {
+                        val result = addArchive(arkivItems)
+                        result.firstOrNull()?.let {
+                            File("/tmp/exampleResponseEntity").writeText("First of ${result.size}" + it.toString())
+                        }
+                        Metrics.insertedEntries.inc(result.size.toDouble())
+                        Response(Status.CREATED).body(gson.toJson(result))
                     }
-                    val result = addArchive(requestBody)
-                    result.firstOrNull()?.let {
-                        File("/tmp/exampleResponseEntity").writeText(it.toString())
-                    }
-                    Metrics.insertedEntries.inc(result.size.toDouble())
-                    call.respond(HttpStatusCode.Created, result)
                 } else {
                     log.info { "Arkiv call denied - missing valid token" }
-                    call.respond(HttpStatusCode.Unauthorized)
+                    Response(Status.UNAUTHORIZED)
                 }
             } catch (e: Exception) {
                 Metrics.issues.inc()
                 if (e is SQLTransientConnectionException) {
-                    call.respond(HttpStatusCode.ServiceUnavailable, "Caught transient connection exception, message: ${e.message}")
+                    Response(Status.SERVICE_UNAVAILABLE).body("Caught transient connection exception, message: ${e.message}")
                 } else {
                     throw e
                 }
             }
-        }
-        post("/hente") {
+        },
+        "/hente" bind Method.POST to { r ->
             Metrics.requestHente.inc()
-            val requestBody = call.receive<HenteModel>()
-            val devBypass = isDev && requestBody.kilde == "test"
-            if (devBypass || containsValidToken(call.request)) {
+            val henteModel = gson.fromJson<HenteModel>(r.bodyString(), HenteModel::class.java)
+            val devBypass = isDev && henteModel.kilde == "test"
+            if (devBypass || tokenValidator.firstValidToken(r).isPresent()) {
                 log.info { "Authorized call to Hente" }
-                if (requestBody.isEmpty()) {
-                    call.respond(HttpStatusCode.BadRequest, "Request contains no search parameters, that is not allowed")
+                if (henteModel.isEmpty()) {
+                    Response(Status.BAD_REQUEST).body("Request contains no search parameters, that is not allowed")
+                } else if (!henteModel.hasValidDokumentDato()) {
+                    Response(Status.BAD_REQUEST).body("Request contains invalid dokumentdato (correct format is empty or yyyy-MM-dd)")
+                } else {
+                    val responses = henteArchive(henteModel) + henteArchiveV4(henteModel)
+                    log.info { "Hente successful response with ${responses.size} entries" }
+                    val asJson = gson.toJson(responses)
+                    File("/tmp/henteresult").writeText(asJson)
+                    Response(Status.OK).body(asJson)
                 }
-                if (!requestBody.hasValidDokumentDato()) {
-                    call.respond(HttpStatusCode.BadRequest, "Request contains invalid dokumentdato (correct format is empty or yyyy-MM-dd)")
-                }
-                call.respond(HttpStatusCode.OK, henteArchive(requestBody) + henteArchiveV4(requestBody))
             } else {
-                log.info { "Hente call denied - missing valid token" }
-                call.respond(HttpStatusCode.Unauthorized)
+                Response(Status.UNAUTHORIZED).body("Hente call denied - missing valid token")
             }
         }
-    }
-
-    // doAddTestData()
-    // health check
-    doSearch()
-    scheduleServerShutdown()
+    )
 }
 
 fun doAddTestData() {
     val archiveModel = ArkivModel(fnr = "11111", aktoerid = "11111", tema = "itest", dokumentasjon = UUID.randomUUID().toString(), dokumentdato = "2044-01-01")
     val archiveModel2 = ArkivModel(fnr = "22222", aktoerid = "22222", tema = "itest", dokumentasjon = UUID.randomUUID().toString(), dokumentdato = "2044-01-01")
 
-    addArchive(arrayOf(archiveModel, archiveModel2))
+    addArchive(listOf(archiveModel, archiveModel2))
 }
 fun doSearch() {
     val henteModel = HenteModel(aktoerid = "22222")

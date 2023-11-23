@@ -30,7 +30,7 @@ private val log = KotlinLogging.logger { }
 object DB {
     val postgresDatabase = PostgresDatabase()
 
-    fun addArchive(requestBody: Array<ArkivModel>): List<ArkivResponse> {
+    fun addArchive(requestBody: List<ArkivModel>): List<ArkivResponse> {
         if (isDev) {
             log.info { "Call to addArchive requestBody: ${requestBody.toList()} (Log in dev)" }
         } else {
