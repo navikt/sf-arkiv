@@ -23,7 +23,7 @@ import no.nav.sf.arkiv.database.DB.henteArchive
 import no.nav.sf.arkiv.database.DB.henteArchiveV4
 import no.nav.sf.arkiv.model.ArkivModel
 import no.nav.sf.arkiv.model.HenteModel
-import no.nav.sf.arkiv.token.containsValidToken
+import no.nav.sf.arkiv.token.TokenValidation
 import java.io.File
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -62,8 +62,9 @@ fun Application.module(testing: Boolean = false) {
         henteAPI()
         arkivAPI()
         get("/authping") {
+            // simpler than the ones above, but do at some point factor this out similarly.
             log.info { "Incoming call authping" }
-            val valid = containsValidToken(call.request)
+            val valid = TokenValidation().containsValidToken(call.request)
             call.respond(HttpStatusCode.OK, "Valid auth $valid")
         }
     }
