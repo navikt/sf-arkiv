@@ -1,11 +1,12 @@
 package no.nav.sf.arkiv.model
 
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.jodatime.datetime
 
 const val DOKUMENTASJON_LENGTH = 131072
 
 object ArkivV3 : Table() {
-    val id = long("id").autoIncrement().primaryKey()
+    val id = long("id").autoIncrement().uniqueIndex()
     val dato = datetime("dato")
     val opprettetAv = varchar("opprettet_av", 50)
     val kilde = varchar("kilde", 43)
@@ -20,7 +21,7 @@ object ArkivV3 : Table() {
 }
 
 object ArkivV4 : Table() {
-    val id = long("id").autoIncrement().primaryKey()
+    val id = long("id").autoIncrement().uniqueIndex()
     val dato = datetime("dato")
     val opprettetAv = varchar("opprettet_av", 50)
     val kilde = varchar("kilde", 43)

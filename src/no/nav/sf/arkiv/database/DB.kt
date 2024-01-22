@@ -17,13 +17,11 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import java.io.File
-import java.sql.ResultSet
 
 private val log = KotlinLogging.logger { }
 
@@ -226,23 +224,6 @@ object DB {
         }
         log.info { "henteArchive v4 returns ${result.size} entries" }
         return result.sortedBy { it.id }
-    }
-
-    fun entryIdOfDokumentasjonId(dokumentasjonId: String): Int {
-        Database.connect(postgresDatabase.dataSource)
-
-        var result: Int = -1
-        transaction {
-            val statement = TransactionManager.current().connection.createStatement()
-
-            log.info { "Attempt exist check" }
-            val existsQuery = "SELECT id FROM arkivv3 WHERE arkivv3.\"dokumentasjonId\"='$dokumentasjonId'"
-
-            val resultSet: ResultSet = statement.executeQuery(existsQuery)
-            var exists = resultSet.next()
-            result = if (exists) resultSet.getInt(1) else -1
-        }
-        return result
     }
 
     private const val cutOff = 30

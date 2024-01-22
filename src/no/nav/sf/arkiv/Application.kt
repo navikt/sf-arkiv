@@ -6,7 +6,6 @@ import io.prometheus.client.exporter.common.TextFormat
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import no.nav.sf.arkiv.database.DB.addArchive
 import no.nav.sf.arkiv.database.DB.henteArchive
@@ -60,12 +59,6 @@ class Application(
         // health check
         doSearch()
         scheduleServerShutdown()
-        refreshLoop() // TODO Not needed.
-    }
-
-    tailrec fun refreshLoop() {
-        runBlocking { delay(900000) } // 15 min
-        refreshLoop()
     }
 
     fun apiServer(port: Int): Http4kServer = api().asServer(ApacheServer(port))
