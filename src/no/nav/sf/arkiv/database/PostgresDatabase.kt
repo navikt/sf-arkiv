@@ -7,6 +7,7 @@ import no.nav.sf.arkiv.dbName
 import no.nav.sf.arkiv.dbUrl
 import no.nav.sf.arkiv.mountPath
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
+import org.jetbrains.exposed.sql.Database
 
 class PostgresDatabase {
 
@@ -16,7 +17,9 @@ class PostgresDatabase {
     private val adminUsername = "$dbName-admin"
     private val username = "$dbName-user"
 
-    val dataSource: HikariDataSource = dataSource()
+    // Note: exposed Database connect prepares for connections but does not actually open connections
+    // That is handled via transaction {} ensuring connections are opened and closed properly
+    val databaseConnection = Database.connect(dataSource())
 
     // HikariCPVaultUtil fetches and refreshed credentials
     private fun dataSource(admin: Boolean = false): HikariDataSource =

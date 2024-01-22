@@ -10,7 +10,6 @@ import no.nav.sf.arkiv.model.ArkivV4
 import no.nav.sf.arkiv.model.DOKUMENTASJON_LENGTH
 import no.nav.sf.arkiv.model.HenteModel
 import no.nav.sf.arkiv.model.HenteResponse
-import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
@@ -34,7 +33,6 @@ object DB {
         } else {
             log.info { "Call to addArchive" }
         }
-        Database.connect(postgresDatabase.dataSource)
         val result: MutableList<ArkivResponse> = mutableListOf()
         transaction {
 
@@ -140,8 +138,6 @@ object DB {
 
     fun henteArchive(henteRequest: HenteModel): List<HenteResponse> {
         if (isDev) log.info { "henteArchive henteRequest: $henteRequest (Log in dev)" }
-        log.info { "Connecting to db for hente" }
-        Database.connect(postgresDatabase.dataSource)
         var result: List<HenteResponse> = listOf()
         transaction {
             val query = ArkivV3.selectAll()
@@ -184,8 +180,6 @@ object DB {
 
     fun henteArchiveV4(henteRequest: HenteModel): List<HenteResponse> {
         if (isDev) log.info { "henteArchive v4 henteRequest: $henteRequest (Log in dev)" }
-        log.info { "Connecting to db for hente v4" }
-        Database.connect(postgresDatabase.dataSource)
         var result: List<HenteResponse> = listOf()
         transaction {
             val query = ArkivV4.selectAll()
