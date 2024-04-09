@@ -1,7 +1,8 @@
 package no.nav.sf.arkiv.model
 
-import no.nav.sf.arkiv.database.DB
 import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 
 data class ArkivModel(
     var opprettetAv: String = "",
@@ -59,7 +60,7 @@ data class HenteResponse(
 fun ArkivModel.hasValidDokumentDato(): Boolean {
     if (this.dokumentdato.isNotEmpty()) {
         try {
-            val dateParsed = DateTime.parse(this.dokumentdato, DB.fmt_onlyDay)
+            val dateParsed = DateTime.parse(this.dokumentdato, fmt_onlyDay)
         } catch (e: Exception) {
             return false
         }
@@ -74,10 +75,13 @@ fun HenteModel.isEmpty(): Boolean {
 fun HenteModel.hasValidDokumentDato(): Boolean {
     if (this.dokumentdato.isNotEmpty()) {
         try {
-            val dateParsed = DateTime.parse(this.dokumentdato, DB.fmt_onlyDay)
+            val dateParsed = DateTime.parse(this.dokumentdato, fmt_onlyDay)
         } catch (e: Exception) {
             return false
         }
     }
     return true
 }
+
+val fmt: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+val fmt_onlyDay: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd")

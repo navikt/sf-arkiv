@@ -10,6 +10,8 @@ import no.nav.sf.arkiv.model.ArkivV4
 import no.nav.sf.arkiv.model.DOKUMENTASJON_LENGTH
 import no.nav.sf.arkiv.model.HenteModel
 import no.nav.sf.arkiv.model.HenteResponse
+import no.nav.sf.arkiv.model.fmt
+import no.nav.sf.arkiv.model.fmt_onlyDay
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
@@ -19,7 +21,6 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import java.io.File
 
 private val log = KotlinLogging.logger { }
@@ -229,7 +230,4 @@ object DB {
             dokumentasjon
         }
     }
-
-    private val fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
-    val fmt_onlyDay = DateTimeFormat.forPattern("yyyy-MM-dd")
 }

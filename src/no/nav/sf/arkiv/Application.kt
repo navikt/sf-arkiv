@@ -29,6 +29,7 @@ import org.http4k.server.Http4kServer
 import org.http4k.server.asServer
 import java.io.File
 import java.io.StringWriter
+import java.lang.RuntimeException
 import java.sql.SQLTransientConnectionException
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -144,7 +145,12 @@ fun doAddTestData() {
 }
 fun doSearch() {
     val henteModel = HenteModel(aktoerid = "22222")
-    File("/tmp/searchresult").writeText((henteArchive(henteModel) + henteArchiveV4(henteModel)).joinToString("\n"))
+    try {
+        File("/tmp/searchresult").writeText((henteArchive(henteModel) + henteArchiveV4(henteModel)).joinToString("\n"))
+    } catch (e: Exception) {
+        log.error { "Exception at henteArchive test call at application boot " + e.message }
+        throw RuntimeException("Exception at henteArchive test call at application boot " + e.message)
+    }
 }
 
 /**
