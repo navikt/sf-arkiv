@@ -1,0 +1,34 @@
+apiVersion: krakend.nais.io/v1
+kind: ApiEndpoints # Note: to be applied in gcp, dev-fss-pub.nais.io endpoint gives a krakend entrypoint at https://teamcrm-gw.ekstern.dev.nav.no
+metadata:
+  name: sf-arkiv
+  namespace: teamcrm
+  labels:
+    team: teamcrm
+spec:
+  appName: sf-arkiv
+  auth:
+    name: azuread
+    cache: true
+    audience:
+      - "7ce33110-995d-4a87-b84a-87e1f35a6bfa"  # dev fetch from pod AZURE_APP_CLIENT_ID
+  endpoints: # specify your API endpoints requiring auth here
+    - path: /sf-arkiv/arkiv # path for your API endpoint in KrakenD - must be unique within your namespace
+      method: POST
+      forwardHeaders:
+        - Authorization # if your backend validates tokens, you need to forward the Authorization header
+      backendHost: https://sf-arkiv-dokumentasjon.prod-fss-pub.nais.io # the service url or ingress for your app
+      backendPath: /arkiv # the path to your API endpoint in your app
+    - path: /sf-arkiv/hente
+      method: POST
+      forwardHeaders:
+        - Authorization
+      backendHost: https://sf-arkiv-dokumentasjon.prod-fss-pub.nais.io
+      backendPath: /hente
+  openEndpoints:
+    - path: /sf-arkiv/authping
+      method: GET
+      forwardHeaders:
+        - Authorization
+      backendHost: https://sf-arkiv-dokumentasjon.prod-fss-pub.nais.io
+      backendPath: /authping

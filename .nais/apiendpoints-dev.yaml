@@ -1,5 +1,5 @@
-apiVersion: krakend.nais.io/v1 # Note: dev-fss-pub.nais.io endpoint gives a krakend entrypoint at https://<MY-TEAM>-gw.ekstern.dev.nav.no
-kind: ApiEndpoints
+apiVersion: krakend.nais.io/v1
+kind: ApiEndpoints # Note: to be applied in gcp, dev-fss-pub.nais.io endpoint gives a krakend entrypoint at https://<MY-TEAM>-gw.ekstern.dev.nav.no
 metadata:
   name: sf-arkiv
   namespace: teamcrm

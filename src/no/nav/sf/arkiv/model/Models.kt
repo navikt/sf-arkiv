@@ -69,7 +69,7 @@ fun ArkivModel.hasValidDokumentDato(): Boolean {
 }
 
 fun HenteModel.isEmpty(): Boolean {
-    return id.isEmpty() && kilde.isEmpty() && dokumentdato.isEmpty() && fnr.isEmpty() && orgnr.isEmpty() && tema.isEmpty()
+    return id.isEmpty() && kilde.isEmpty() && dokumentasjonId.isEmpty() && dokumentdato.isEmpty() && aktoerid.isEmpty() && fnr.isEmpty() && orgnr.isEmpty() && tema.isEmpty()
 }
 
 fun HenteModel.hasValidDokumentDato(): Boolean {
