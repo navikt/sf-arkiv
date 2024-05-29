@@ -37,12 +37,11 @@ jobs:
     name: Deploy to dev-fss
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: nais/deploy/actions/deploy@v2
+      - uses: nais/deploy/actions/deploy@v1
         env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
           RESOURCE: .nais/dev.yaml
           VAR: image=${{ needs.build.outputs.image }}
@@ -50,12 +49,11 @@ jobs:
     name: Deploy to prod-fss
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: nais/deploy/actions/deploy@v2
+      - uses: nais/deploy/actions/deploy@v1
         env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
           RESOURCE: .nais/prod.yaml
           VAR: image=${{ needs.build.outputs.image }}
