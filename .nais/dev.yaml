@@ -52,6 +52,9 @@ spec:
         - application: itestapp
           namespace: teamcrm
           cluster: dev-gcp
+        - application: saas-proxy
+          namespace: teamcrm
+          cluster: dev-gcp
         - application: sf-arkiv-proxy
           namespace: teamcrm
           cluster: dev-gcp
