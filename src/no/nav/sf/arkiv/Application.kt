@@ -56,10 +56,11 @@ class Application(
     fun start() {
         log.info { "Starting ${if (isDev) "DEV" else "PROD"}" }
         apiServer(NAIS_DEFAULT_PORT).start()
-        log.info { "Started" }
+        log.info { "Started -trigger DB setup and wait 3s" }
+        log.info { "DB${DB.postgresDatabase}" }
+        Thread.sleep(3000)
         // doAddTestData()
         // health check
-
         doSearch()
         DB.listTables()
         scheduleServerShutdown()
