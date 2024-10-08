@@ -5,11 +5,14 @@ import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
 import no.nav.sf.arkiv.dbName
 import no.nav.sf.arkiv.dbUrl
+import no.nav.sf.arkiv.model.ArkivV4
 import no.nav.sf.arkiv.mountPath
 import no.nav.sf.arkiv.targetDbName
 import no.nav.sf.arkiv.targetDbUrl
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.transactions.transaction
 
 class PostgresDatabase(val target: Boolean = false) {
 
@@ -42,5 +45,19 @@ class PostgresDatabase(val target: Boolean = false) {
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         }
+    }
+
+    fun create() {
+        val admin = Database.connect(dataSource(admin = true))
+        transaction(admin) {
+            log.info { "Creating table ArkivV4" }
+            SchemaUtils.create(ArkivV4)
+        }
+        log.info { "Create Done" }
+    }
+
+    fun reconnect() {
+        log.info { "Reconnect with $username" }
+        Database.connect(dataSource())
     }
 }

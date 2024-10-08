@@ -71,6 +71,9 @@ class Application(
         } catch (e: Exception) {
             log.error { "Exception at list old $e" }
         }
+
+        DB.targetPostgresDatabase.create()
+        DB.postgresDatabase.reconnect()
         doSearch()
 
         scheduleServerShutdown()
