@@ -234,10 +234,11 @@ object DB {
 
     fun listTables() {
         transaction {
-            log.info { "Tables in ${SchemaUtils.listDatabases().joinToString(",")}" }
+            log.info { "Tables:" }
             SchemaUtils.listTables().forEach {
                 log.info { it }
             }
+            log.info { " - end tables" }
         }
     }
 }
