@@ -19,7 +19,7 @@ class PostgresDatabase {
 
     // Note: exposed Database connect prepares for connections but does not actually open connections
     // That is handled via transaction {} ensuring connections are opened and closed properly
-    val databaseConnection = Database.connect(dataSource())
+    val databaseConnection = Database.connect(dataSource(true))
 
     // HikariCPVaultUtil fetches and refreshed credentials
     private fun dataSource(admin: Boolean = false): HikariDataSource =
