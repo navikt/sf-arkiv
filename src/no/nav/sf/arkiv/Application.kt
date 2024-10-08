@@ -134,6 +134,10 @@ class Application(
             } else {
                 Response(Status.UNAUTHORIZED).body("Hente call denied - missing valid token")
             }
+        },
+        "/prov" bind Method.POST to { _ ->
+            doSearch()
+            Response(Status.OK).body("Triggered")
         }
     )
 }
