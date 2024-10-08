@@ -27,8 +27,8 @@ import java.io.File
 private val log = KotlinLogging.logger { }
 
 object DB {
-    val postgresDatabase = PostgresDatabase()
     val targetPostgresDatabase = PostgresDatabase(true)
+    val postgresDatabase = PostgresDatabase()
 
     fun addArchive(requestBody: List<ArkivModel>): List<ArkivResponse> {
         if (isDev) {
