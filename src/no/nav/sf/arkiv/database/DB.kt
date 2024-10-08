@@ -233,22 +233,11 @@ object DB {
     }
 
     fun listTables() {
-        log.info { "Before metadata" }
         transaction {
-            connection.metadata {
-                log.info { "db: ${this.database}" }
-                schemaNames.forEach {
-                    log.info { "schema: $it" }
-                }
-                log.info { "Inside metadata - tablesize ${this.tableNames.size}" }
-                tableNames.forEach { table ->
-                    log.info { table.key + ":" + table.value.joinToString(",") }
-                }
-            }
+            log.info { "Tables in ${SchemaUtils.listDatabases().joinToString(",")}" }
             SchemaUtils.listTables().forEach {
-                log.info { "Table: $it" }
+                log.info { it }
             }
         }
-        log.info { "After metadata" }
     }
 }
