@@ -230,4 +230,14 @@ object DB {
             dokumentasjon
         }
     }
+
+    fun listTables() {
+        transaction {
+            connection.metadata {
+                tableNames.forEach { table ->
+                    log.info(table.key + ":" + table.value.joinToString(","))
+                }
+            }
+        }
+    }
 }

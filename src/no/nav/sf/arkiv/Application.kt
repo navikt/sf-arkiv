@@ -7,6 +7,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
+import no.nav.sf.arkiv.database.DB
 import no.nav.sf.arkiv.database.DB.addArchive
 import no.nav.sf.arkiv.database.DB.henteArchive
 import no.nav.sf.arkiv.database.DB.henteArchiveV4
@@ -58,6 +59,7 @@ class Application(
         log.info { "Started" }
         // doAddTestData()
         // health check
+        DB.listTables()
         doSearch()
         scheduleServerShutdown()
     }
