@@ -245,10 +245,10 @@ object DB {
                     log.info { table.key + ":" + table.value.joinToString(",") }
                 }
             }
+            SchemaUtils.listTables().forEach {
+                log.info { "Table: $it" }
+            }
         }
         log.info { "After metadata" }
-        SchemaUtils.listTables().forEach {
-            log.info { "Table: $it" }
-        }
     }
 }
