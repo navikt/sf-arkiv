@@ -59,8 +59,9 @@ class Application(
         log.info { "Started" }
         // doAddTestData()
         // health check
+
+        doSearch()
         DB.listTables()
-        // doSearch()
         scheduleServerShutdown()
     }
 
