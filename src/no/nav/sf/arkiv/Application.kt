@@ -168,7 +168,7 @@ fun doAddTestData() {
 fun doSearch() {
     val henteModel = HenteModel(aktoerid = "22222")
     try {
-        File("/tmp/searchresult").writeText((henteArchive(henteModel) + henteArchiveV4(henteModel)).joinToString("\n"))
+        File("/tmp/searchresult").writeText(henteArchiveV4(henteModel).joinToString("\n"))
     } catch (e: Exception) {
         log.error { "Exception at henteArchive test call at application boot " + e.message }
         throw RuntimeException("Exception at henteArchive test call at application boot " + e.message)
