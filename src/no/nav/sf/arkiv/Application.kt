@@ -58,8 +58,9 @@ class Application(
         apiServer(NAIS_DEFAULT_PORT).start()
         // doAddTestData()
         // health check
-        doSearch()
         DB.listTables()
+        doSearch()
+
         scheduleServerShutdown()
     }
 
