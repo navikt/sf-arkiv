@@ -14,6 +14,7 @@ import no.nav.sf.arkiv.model.fmt
 import no.nav.sf.arkiv.model.fmt_onlyDay
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
@@ -246,5 +247,8 @@ object DB {
             }
         }
         log.info { "After metadata" }
+        SchemaUtils.listTables().forEach {
+            log.info { "Table: $it" }
+        }
     }
 }
