@@ -73,3 +73,7 @@ spec:
       value: arkiv-dokumentasjon
     - name: DB_URL
       value: jdbc:postgresql://A01DBVL022.adeo.no:5432/arkiv-dokumentasjon
+    - name: TARGET_DB_NAME
+      value: sf-arkiv
+    - name: TARGET_DB_URL
+      value: jdbc:postgresql://A01DBVL037.adeo.no:5432/sf-arkiv
