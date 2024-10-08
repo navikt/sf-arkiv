@@ -232,10 +232,11 @@ object DB {
     }
 
     fun listTables() {
+        log.info { "listtables" }
         transaction {
             connection.metadata {
                 tableNames.forEach { table ->
-                    log.info(table.key + ":" + table.value.joinToString(","))
+                    log.info { table.key + ":" + table.value.joinToString(",") }
                 }
             }
         }

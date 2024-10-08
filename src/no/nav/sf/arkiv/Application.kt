@@ -60,7 +60,7 @@ class Application(
         // doAddTestData()
         // health check
         DB.listTables()
-        doSearch()
+        // doSearch()
         scheduleServerShutdown()
     }
 
