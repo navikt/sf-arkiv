@@ -6,16 +6,18 @@ import mu.KotlinLogging
 import no.nav.sf.arkiv.dbName
 import no.nav.sf.arkiv.dbUrl
 import no.nav.sf.arkiv.mountPath
+import no.nav.sf.arkiv.targetDbName
+import no.nav.sf.arkiv.targetDbUrl
 import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 import org.jetbrains.exposed.sql.Database
 
-class PostgresDatabase {
+class PostgresDatabase(val target: Boolean = false) {
 
     private val log = KotlinLogging.logger { }
 
     private val vaultMountPath = mountPath
-    private val adminUsername = "$dbName-admin"
-    private val username = "$dbName-user"
+    private val adminUsername = "${if (target) targetDbName else dbName}-admin"
+    private val username = "${if (target) targetDbName else dbName}-user"
 
     // Note: exposed Database connect prepares for connections but does not actually open connections
     // That is handled via transaction {} ensuring connections are opened and closed properly
@@ -31,7 +33,7 @@ class PostgresDatabase {
 
     private fun hikariConfig(): HikariConfig {
         return HikariConfig().apply {
-            jdbcUrl = dbUrl
+            jdbcUrl = if (target) targetDbUrl else dbUrl
             minimumIdle = 1
             maxLifetime = 26000
             maximumPoolSize = 4

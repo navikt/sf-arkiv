@@ -44,6 +44,8 @@ val isDev: Boolean = System.getenv("CONTEXT") == "DEV"
 val mountPath = System.getenv("MOUNT_PATH")
 val dbName = System.getenv("DB_NAME")
 val dbUrl = System.getenv("DB_URL")
+val targetDbName = System.getenv("TARGET_DB_NAME")
+val targetDbUrl = System.getenv("TARGET_DB_URL")
 
 private val log = KotlinLogging.logger { }
 
@@ -59,7 +61,8 @@ class Application(
         // doAddTestData()
         // health check
         DB.listTables()
-        doSearch()
+        DB.listTables(true)
+        // doSearch()
 
         scheduleServerShutdown()
     }

@@ -71,7 +71,5 @@ spec:
       value: /postgresql/prod-fss
     - name: DB_NAME
       value: arkiv-dokumentasjon
-    - name: DB_ROLE
-      value: admin
     - name: DB_URL
       value: jdbc:postgresql://A01DBVL022.adeo.no:5432/arkiv-dokumentasjon
