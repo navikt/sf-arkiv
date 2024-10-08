@@ -235,11 +235,16 @@ object DB {
         log.info { "Before metadata" }
         transaction {
             connection.metadata {
-                log.info { "Inside metadata" }
+                log.info { "db: ${this.database}" }
+                schemaNames.forEach {
+                    log.info { "schema: $it" }
+                }
+                log.info { "Inside metadata - tablesize ${this.tableNames.size}" }
                 tableNames.forEach { table ->
                     log.info { table.key + ":" + table.value.joinToString(",") }
                 }
             }
         }
+        log.info { "After metadata" }
     }
 }
