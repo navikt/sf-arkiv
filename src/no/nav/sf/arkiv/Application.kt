@@ -60,8 +60,17 @@ class Application(
         apiServer(NAIS_DEFAULT_PORT).start()
         // doAddTestData()
         // health check
-        DB.listTables(true)
-        DB.listTables()
+        try {
+            DB.listTables(true)
+        } catch (e: Exception) {
+            log.error { "Exception at list target $e" }
+        }
+
+        try {
+            DB.listTables()
+        } catch (e: Exception) {
+            log.error { "Exception at list old $e" }
+        }
         doSearch()
 
         scheduleServerShutdown()
