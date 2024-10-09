@@ -56,6 +56,13 @@ class PostgresDatabase(val target: Boolean = false) {
         log.info { "Create Done" }
     }
 
+    fun grant() {
+        val admin = Database.connect(dataSource(admin = true))
+        transaction(admin) {
+            exec("GRANT INSERT, SELECT ON TABLE arkivv4 TO $username")
+        }
+    }
+
     fun reconnect() {
         log.info { "Reconnect with $username" }
         Database.connect(dataSource())

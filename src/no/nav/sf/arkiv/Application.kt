@@ -74,6 +74,7 @@ class Application(
 
         // DB.targetPostgresDatabase.create()
         // DB.postgresDatabase.reconnect()
+        DB.targetPostgresDatabase.grant()
         DB.targetPostgresDatabase.reconnect()
         doSearch()
 
