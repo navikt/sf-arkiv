@@ -72,10 +72,10 @@ class Application(
             log.error { "Exception at list old $e" }
         }
 
-        // DB.targetPostgresDatabase.create()
+        DB.targetPostgresDatabase.create()
         // DB.postgresDatabase.reconnect()
-        DB.targetPostgresDatabase.grant()
-        DB.targetPostgresDatabase.reconnect()
+        // DB.targetPostgresDatabase.grant()
+        // DB.targetPostgresDatabase.reconnect()
         doSearch()
 
         scheduleServerShutdown()
