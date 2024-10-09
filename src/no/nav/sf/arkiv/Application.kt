@@ -68,8 +68,8 @@ class Application(
         // DB.postgresDatabase.reconnect()
         // DB.targetPostgresDatabase.grant()
         if (!isDev) {
-            DB.targetPostgresDatabase.grant("arkivv3")
-            DB.targetPostgresDatabase.grant("arkivv4")
+            // DB.targetPostgresDatabase.grant("arkivv3")
+            // DB.targetPostgresDatabase.grant("arkivv4")
             DB.targetPostgresDatabase.idQuery("arkivv3", tablesTarget)
             DB.targetPostgresDatabase.idQuery("arkivv4", tablesTarget) // Bad table in dev-fss
         }

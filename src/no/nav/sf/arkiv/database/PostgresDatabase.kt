@@ -128,7 +128,7 @@ class PostgresDatabase(val target: Boolean = false) {
                     val dato = if (found) rs.getTimestamp("dato").toInstant() else Instant.EPOCH
                     id to dato
                 }
-            log.info { "First and Last ID and dato: $firstRow - $lastRow in $tableName with $adminRole" }
+            log.info { "First and Last ID and dato: $firstRow - $lastRow in $tableName with $role" }
         }
     }
 
