@@ -67,7 +67,6 @@ class Application(
         // DB.postgresDatabase.reconnect()
         // DB.targetPostgresDatabase.grant()
         DB.targetPostgresDatabase.reconnectWithNormalUser()
-        doAddTestData()
         doSearch()
 
         scheduleServerShutdown()
