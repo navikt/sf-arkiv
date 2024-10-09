@@ -28,7 +28,7 @@ private val log = KotlinLogging.logger { }
 
 object DB {
     val targetPostgresDatabase = PostgresDatabase(true)
-    val postgresDatabase = PostgresDatabase()
+    // val postgresDatabase = PostgresDatabase()
 
     fun addArchive(requestBody: List<ArkivModel>): List<ArkivResponse> {
         if (isDev) {
@@ -233,13 +233,13 @@ object DB {
         }
     }
 
-    fun listTables(target: Boolean = false) {
-        transaction(if (target) targetPostgresDatabase.databaseConnection else postgresDatabase.databaseConnection) {
-            log.info { "Tables in target $target:" }
+    fun listTables() {
+        transaction {
+            log.info { "Tables in target:" }
             SchemaUtils.listTables().forEach {
                 log.info { it }
             }
-            log.info { " - end tables in target $target" }
+            log.info { " - end tables in target" }
         }
     }
 }

@@ -15,7 +15,7 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.net.SocketTimeoutException
 
-class PostgresDatabase(val target: Boolean = false) {
+class PostgresDatabase(val target: Boolean = true) {
 
     private val log = KotlinLogging.logger { }
 

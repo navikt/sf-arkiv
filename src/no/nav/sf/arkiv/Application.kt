@@ -61,12 +61,13 @@ class Application(
 
         DB.listTables()
 
-        DB.listTables(true)
+        // DB.listTables(true)
 
         // DB.targetPostgresDatabase.create()
         // DB.postgresDatabase.reconnect()
         // DB.targetPostgresDatabase.grant()
         DB.targetPostgresDatabase.reconnectWithNormalUser()
+        log.info { "Will try add test data " }
         doAddTestData()
         doSearch()
 
