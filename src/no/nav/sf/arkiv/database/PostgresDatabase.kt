@@ -95,13 +95,16 @@ class PostgresDatabase(val target: Boolean = true) {
         log.info { "Create Done" }
     }
 
-    fun grant() {
-        val admin = Database.connect(dataSource(admin = true))
-        transaction(admin) {
-            log.info { "Granting on arkivv4" }
-            val quotedRoleName = "\"$role\""
-            exec("GRANT INSERT, SELECT ON TABLE arkivv4 TO $quotedRoleName")
-            log.info { "Granting on arkivv4 done" }
+    fun lastId(legacyDb: String = "arkivv4") {
+        val chosen = if (target) "arkiv" else legacyDb
+        Database.connect(dataSource())
+        transaction() {
+            // Option 1: Get the ID of the last row
+            val lastRowId =
+                exec("SELECT id FROM $chosen ORDER BY id DESC LIMIT 1") { rs ->
+                    if (rs.next()) rs.getInt("id") else 0
+                }
+            log.info { "Last row ID: $lastRowId in $chosen" }
         }
     }
 

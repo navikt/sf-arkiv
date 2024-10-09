@@ -61,14 +61,19 @@ class Application(
 
         DB.listTables()
 
+        isReady = true // If made it so far connection established and kubernetes might allow traffic
+
         // DB.listTables(true)
 
         // DB.targetPostgresDatabase.create()
         // DB.postgresDatabase.reconnect()
         // DB.targetPostgresDatabase.grant()
+        DB.postgresDatabase.lastId("arkivv3")
+        DB.postgresDatabase.lastId("arkivv4")
+        DB.targetPostgresDatabase.lastId()
         DB.targetPostgresDatabase.reconnectWithNormalUser()
         log.info { "Will try add test data " }
-        doAddTestData()
+        // doAddTestData()
         doSearch()
 
         scheduleServerShutdown()
@@ -76,10 +81,13 @@ class Application(
 
     fun apiServer(port: Int): Http4kServer = api().asServer(ApacheServer(port))
 
+    @Volatile
+    var isReady: Boolean = false
+
     fun api(): HttpHandler = routes(
         "/static" bind static(ResourceLoader.Classpath("/static")),
         "/internal/is_alive" bind Method.GET to { Response(Status.OK) },
-        "/internal/is_ready" bind Method.GET to { Response(Status.OK) },
+        "/internal/is_ready" bind Method.GET to { if (isReady) Response(Status.OK) else Response(Status.SERVICE_UNAVAILABLE) },
         "/internal/prometheus" bind Method.GET to {
             Response(Status.OK).body(
                 StringWriter().let { str ->
