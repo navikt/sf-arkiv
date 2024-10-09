@@ -31,7 +31,7 @@ class PostgresDatabase(val target: Boolean = false) {
     private fun dataSource(admin: Boolean = false): HikariDataSource {
         val maxRetries = 5
         var currentRetry = 0
-        var delayBetweenRetries = 1000L
+        var delayBetweenRetries = 1000L // 1 second initial delay
 
         while (currentRetry < maxRetries) {
             try {
@@ -41,27 +41,31 @@ class PostgresDatabase(val target: Boolean = false) {
                     vaultMountPath,
                     if (admin) adminUsername else username
                 )
-            } catch (e: SocketTimeoutException) {
-                currentRetry++
-                log.error { "SocketTimeoutException on attempt $currentRetry: ${e.message}" }
-
-                if (currentRetry < maxRetries) {
-                    log.info { "Retrying in $delayBetweenRetries ms..." }
-                    Thread.sleep(delayBetweenRetries) // Block the current thread for a delay
-
-                    // Increase the delay (exponential backoff)
-                    delayBetweenRetries *= 2
-                } else {
-                    log.error { "Max retries reached. Unable to create HikariDataSource." }
-                    throw e // Rethrow the exception after the max number of retries
-                }
             } catch (e: Exception) {
-                log.error { "Failed to create HikariDataSource due to an unexpected exception: ${e.message}" }
-                throw e // Rethrow if it's not a SocketTimeoutException
+                currentRetry++
+                log.error { "Exception on attempt $currentRetry: ${e.message}" }
+
+                // Check if the exception or any of its causes is a SocketTimeoutException
+                if (e.hasCauseOfType(SocketTimeoutException::class.java)) {
+                    log.error { "Detected SocketTimeoutException as a cause." }
+
+                    if (currentRetry < maxRetries) {
+                        log.info { "Retrying in $delayBetweenRetries ms..." }
+                        Thread.sleep(delayBetweenRetries) // Block the current thread for a delay
+
+                        // Optionally, increase the delay (exponential backoff)
+                        delayBetweenRetries *= 2
+                    } else {
+                        log.error { "Max retries reached. Unable to create HikariDataSource." }
+                        throw e // Rethrow the exception after the max number of retries
+                    }
+                } else {
+                    log.error { "Non-SocketTimeoutException encountered: ${e.message}" }
+                    throw e // Rethrow if it's not a SocketTimeoutException or its cause
+                }
             }
         }
 
-        // Fallback, though code will never reach here due to the loop or rethrown exception
         throw RuntimeException("Failed to create HikariDataSource after $maxRetries attempts")
     }
 
@@ -99,5 +103,16 @@ class PostgresDatabase(val target: Boolean = false) {
     fun reconnect() {
         log.info { "Reconnect with $username" }
         Database.connect(dataSource())
+    }
+
+    fun Throwable.hasCauseOfType(causeClass: Class<out Throwable>): Boolean {
+        var currentCause: Throwable? = this
+        while (currentCause != null) {
+            if (causeClass.isInstance(currentCause)) {
+                return true
+            }
+            currentCause = currentCause.cause
+        }
+        return false
     }
 }
