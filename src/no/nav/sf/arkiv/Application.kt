@@ -59,17 +59,18 @@ class Application(
         log.info { "Starting ${if (isDev) "DEV" else "PROD"}" }
         apiServer(NAIS_DEFAULT_PORT).start()
 
-        DB.listTables()
-        DB.listTables(true)
+        val tablesOld = DB.listTables()
+        val tablesTarget = DB.listTables(true)
 
         // DB.listTables(true)
 
         // DB.targetPostgresDatabase.create()
         // DB.postgresDatabase.reconnect()
         // DB.targetPostgresDatabase.grant()
-        DB.targetPostgresDatabase.idQuery("arkivv3")
-        DB.targetPostgresDatabase.idQuery("arkivv4")
-        DB.targetPostgresDatabase.idQuery("arkiv")
+
+        DB.targetPostgresDatabase.idQuery("arkivv3", tablesTarget)
+        DB.targetPostgresDatabase.idQuery("arkivv4", tablesTarget)
+        DB.targetPostgresDatabase.idQuery("arkiv", tablesTarget)
 
         isReady = true // If made it so far connection established and kubernetes might allow traffic
 

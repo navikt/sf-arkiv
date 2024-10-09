@@ -233,13 +233,16 @@ object DB {
         }
     }
 
-    fun listTables(target: Boolean = false) {
+    fun listTables(target: Boolean = false): List<String> {
+        val result: MutableList<String> = mutableListOf()
         transaction(if (target) targetPostgresDatabase.databaseConnection else postgresDatabase.databaseConnection) {
             log.info { "Tables in target $target:" }
             SchemaUtils.listTables().forEach {
                 log.info { it }
+                result.add(it.removePrefix("public."))
             }
             log.info { " - end tables in target $target" }
         }
+        return result
     }
 }

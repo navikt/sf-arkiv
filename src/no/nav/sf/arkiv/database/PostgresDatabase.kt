@@ -96,9 +96,13 @@ class PostgresDatabase(val target: Boolean = false) {
         log.info { "Create Done" }
     }
 
-    fun idQuery(tableName: String) {
+    fun idQuery(tableName: String, refList: List<String>) {
+        if (!refList.contains(tableName)) {
+            log.info { "$tableName not present in reference list of tables - skip idQuery" }
+            return
+        }
         log.info { "Will attempt lastId fetch for $tableName" }
-        Database.connect(dataSource())
+        Database.connect(dataSource(true))
         transaction() {
             // Option 1: Get the ID of the last row
             val lastRow =
@@ -113,7 +117,7 @@ class PostgresDatabase(val target: Boolean = false) {
                     val dato = if (rs.next()) rs.getTimestamp("dato").toInstant() else Instant.EPOCH
                     id to dato
                 }
-            log.info { "First and Last ID and dato: $firstRow - $lastRow in $tableName with $role" }
+            log.info { "First and Last ID and dato: $firstRow - $lastRow in $tableName with $adminRole" }
         }
     }
 
