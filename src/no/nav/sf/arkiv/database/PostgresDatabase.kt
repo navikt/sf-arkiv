@@ -13,6 +13,7 @@ import no.nav.vault.jdbc.hikaricp.HikariCPVaultUtil
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.net.SocketTimeoutException
 
 class PostgresDatabase(val target: Boolean = false) {
 
@@ -27,12 +28,42 @@ class PostgresDatabase(val target: Boolean = false) {
     val databaseConnection = Database.connect(dataSource())
 
     // HikariCPVaultUtil fetches and refreshed credentials
-    private fun dataSource(admin: Boolean = false): HikariDataSource =
-        HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(
-            hikariConfig(),
-            vaultMountPath,
-            if (admin) adminUsername else username
-        )
+    private fun dataSource(admin: Boolean = false): HikariDataSource {
+        val maxRetries = 5
+        var currentRetry = 0
+        var delayBetweenRetries = 1000L
+
+        while (currentRetry < maxRetries) {
+            try {
+                // Try to create the HikariDataSource with Vault integration
+                return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(
+                    hikariConfig(),
+                    vaultMountPath,
+                    if (admin) adminUsername else username
+                )
+            } catch (e: SocketTimeoutException) {
+                currentRetry++
+                log.error { "SocketTimeoutException on attempt $currentRetry: ${e.message}" }
+
+                if (currentRetry < maxRetries) {
+                    log.info { "Retrying in $delayBetweenRetries ms..." }
+                    Thread.sleep(delayBetweenRetries) // Block the current thread for a delay
+
+                    // Increase the delay (exponential backoff)
+                    delayBetweenRetries *= 2
+                } else {
+                    log.error { "Max retries reached. Unable to create HikariDataSource." }
+                    throw e // Rethrow the exception after the max number of retries
+                }
+            } catch (e: Exception) {
+                log.error { "Failed to create HikariDataSource due to an unexpected exception: ${e.message}" }
+                throw e // Rethrow if it's not a SocketTimeoutException
+            }
+        }
+
+        // Fallback, though code will never reach here due to the loop or rethrown exception
+        throw RuntimeException("Failed to create HikariDataSource after $maxRetries attempts")
+    }
 
     private fun hikariConfig(): HikariConfig {
         return HikariConfig().apply {
