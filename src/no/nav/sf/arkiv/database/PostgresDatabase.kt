@@ -107,14 +107,16 @@ class PostgresDatabase(val target: Boolean = false) {
             // Option 1: Get the ID of the last row
             val lastRow =
                 exec("SELECT id, dato FROM $tableName ORDER BY id DESC LIMIT 1") { rs ->
-                    val id = if (rs.next()) rs.getLong("id") else 0
-                    val dato = if (rs.next()) rs.getTimestamp("dato").toInstant() else Instant.EPOCH
+                    val found = rs.next()
+                    val id = if (found) rs.getLong("id") else 0
+                    val dato = if (found) rs.getTimestamp("dato").toInstant() else Instant.EPOCH
                     id to dato
                 }
             val firstRow =
                 exec("SELECT id, dato FROM $tableName ORDER BY id ASC LIMIT 1") { rs ->
-                    val id = if (rs.next()) rs.getLong("id") else 0
-                    val dato = if (rs.next()) rs.getTimestamp("dato").toInstant() else Instant.EPOCH
+                    val found = rs.next()
+                    val id = if (found) rs.getLong("id") else 0
+                    val dato = if (found) rs.getTimestamp("dato").toInstant() else Instant.EPOCH
                     id to dato
                 }
             log.info { "First and Last ID and dato: $firstRow - $lastRow in $tableName with $adminRole" }
