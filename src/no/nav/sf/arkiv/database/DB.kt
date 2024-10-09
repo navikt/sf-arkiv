@@ -3,10 +3,10 @@ package no.nav.sf.arkiv.database
 import mu.KotlinLogging
 import no.nav.sf.arkiv.Metrics
 import no.nav.sf.arkiv.isDev
+import no.nav.sf.arkiv.model.Arkiv
 import no.nav.sf.arkiv.model.ArkivModel
 import no.nav.sf.arkiv.model.ArkivResponse
 import no.nav.sf.arkiv.model.ArkivV3
-import no.nav.sf.arkiv.model.ArkivV4
 import no.nav.sf.arkiv.model.DOKUMENTASJON_LENGTH
 import no.nav.sf.arkiv.model.HenteModel
 import no.nav.sf.arkiv.model.HenteResponse
@@ -76,7 +76,7 @@ object DB {
                     log.info { "Will attempt ${if (update) "update" else "insert"}" }
                     val now = DateTime.now()
                     val resultId = if (update) {
-                        ArkivV4.update({ ArkivV4.dokumentasjonId eq payload.dokumentasjonId }) {
+                        Arkiv.update({ Arkiv.dokumentasjonId eq payload.dokumentasjonId }) {
                             it[dato] = now
                             it[opprettetAv] = payload.opprettetAv
                             it[kilde] = payload.kilde
@@ -90,7 +90,7 @@ object DB {
                             it[konfidentiellt] = payload.konfidentiellt
                         }; id
                     } else {
-                        ArkivV4.insert {
+                        Arkiv.insert {
                             it[dato] = now
                             it[opprettetAv] = payload.opprettetAv
                             it[kilde] = payload.kilde
@@ -102,7 +102,7 @@ object DB {
                             it[orgnr] = payload.orgnr
                             it[tema] = payload.tema
                             it[konfidentiellt] = payload.konfidentiellt
-                        } get ArkivV4.id
+                        } get Arkiv.id
                     }
                     if (update) {
                         log.info { "Made an update on dokumentasjonId: ${payload.dokumentasjonId}, entryid: $id" }
@@ -185,37 +185,37 @@ object DB {
         if (isDev) log.info { "henteArchive v4 henteRequest: $henteRequest (Log in dev)" }
         var result: List<HenteResponse> = listOf()
         transaction {
-            val query = ArkivV4.selectAll()
-            if (henteRequest.id.isNotEmpty()) query.andWhere { ArkivV4.id eq henteRequest.id.toLong() }
-            if (henteRequest.aktoerid.isNotEmpty()) query.andWhere { ArkivV4.aktoerid eq henteRequest.aktoerid }
-            if (henteRequest.fnr.isNotEmpty()) query.andWhere { ArkivV4.fnr eq henteRequest.fnr }
-            if (henteRequest.orgnr.isNotEmpty()) query.andWhere { ArkivV4.orgnr eq henteRequest.orgnr }
-            if (henteRequest.tema.isNotEmpty()) query.andWhere { ArkivV4.tema eq henteRequest.tema }
-            if (henteRequest.kilde.isNotEmpty()) query.andWhere { ArkivV4.kilde eq henteRequest.kilde }
-            if (henteRequest.dokumentasjonId.isNotEmpty()) query.andWhere { ArkivV4.dokumentasjonId eq henteRequest.dokumentasjonId }
+            val query = Arkiv.selectAll()
+            if (henteRequest.id.isNotEmpty()) query.andWhere { Arkiv.id eq henteRequest.id.toLong() }
+            if (henteRequest.aktoerid.isNotEmpty()) query.andWhere { Arkiv.aktoerid eq henteRequest.aktoerid }
+            if (henteRequest.fnr.isNotEmpty()) query.andWhere { Arkiv.fnr eq henteRequest.fnr }
+            if (henteRequest.orgnr.isNotEmpty()) query.andWhere { Arkiv.orgnr eq henteRequest.orgnr }
+            if (henteRequest.tema.isNotEmpty()) query.andWhere { Arkiv.tema eq henteRequest.tema }
+            if (henteRequest.kilde.isNotEmpty()) query.andWhere { Arkiv.kilde eq henteRequest.kilde }
+            if (henteRequest.dokumentasjonId.isNotEmpty()) query.andWhere { Arkiv.dokumentasjonId eq henteRequest.dokumentasjonId }
             if (henteRequest.dokumentdato.isNotEmpty()) query.andWhere {
-                ArkivV4.dokumentdato eq DateTime.parse(
+                Arkiv.dokumentdato eq DateTime.parse(
                     henteRequest.dokumentdato,
                     fmt_onlyDay
                 )
             }
-            query.andWhere { ArkivV4.konfidentiellt eq false }
+            query.andWhere { Arkiv.konfidentiellt eq false }
 
             val resultRow = query.toList()
             File("/tmp/queryListHenteArchivev4").writeText(resultRow.toString())
             result = resultRow.map {
                 HenteResponse(
-                    id = it[ArkivV4.id],
-                    dato = fmt.print(it[ArkivV4.dato]),
-                    opprettetAv = it[ArkivV4.opprettetAv],
-                    kilde = it[ArkivV4.kilde],
-                    dokumentasjonId = it[ArkivV4.dokumentasjonId],
-                    dokumentasjon = it[ArkivV4.dokumentasjon],
-                    dokumentdato = fmt_onlyDay.print(it[ArkivV4.dokumentdato]),
-                    aktoerid = it[ArkivV4.aktoerid],
-                    fnr = it[ArkivV4.fnr],
-                    orgnr = it[ArkivV4.orgnr],
-                    tema = it[ArkivV4.tema]
+                    id = it[Arkiv.id],
+                    dato = fmt.print(it[Arkiv.dato]),
+                    opprettetAv = it[Arkiv.opprettetAv],
+                    kilde = it[Arkiv.kilde],
+                    dokumentasjonId = it[Arkiv.dokumentasjonId],
+                    dokumentasjon = it[Arkiv.dokumentasjon],
+                    dokumentdato = fmt_onlyDay.print(it[Arkiv.dokumentdato]),
+                    aktoerid = it[Arkiv.aktoerid],
+                    fnr = it[Arkiv.fnr],
+                    orgnr = it[Arkiv.orgnr],
+                    tema = it[Arkiv.tema]
                 )
             }
         }

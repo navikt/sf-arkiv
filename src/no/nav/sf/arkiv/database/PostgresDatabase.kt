@@ -5,7 +5,7 @@ import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
 import no.nav.sf.arkiv.dbName
 import no.nav.sf.arkiv.dbUrl
-import no.nav.sf.arkiv.model.ArkivV4
+import no.nav.sf.arkiv.model.Arkiv
 import no.nav.sf.arkiv.mountPath
 import no.nav.sf.arkiv.targetDbName
 import no.nav.sf.arkiv.targetDbUrl
@@ -87,12 +87,12 @@ class PostgresDatabase(val target: Boolean = false) {
     fun create() {
         val admin = Database.connect(dataSource(admin = true))
         transaction(admin) {
-            log.info { "Dropping ArkivV4" }
-            SchemaUtils.drop(ArkivV4)
+            // log.info { "Dropping ArkivV4" }
+            // SchemaUtils.drop(ArkivV4)
             exec("SET ROLE \"$adminRole\"")
 
-            log.info { "Creating table ArkivV4" }
-            SchemaUtils.create(ArkivV4)
+            log.info { "Creating table Arkiv" }
+            SchemaUtils.create(Arkiv)
         }
         log.info { "Create Done" }
     }
@@ -107,7 +107,7 @@ class PostgresDatabase(val target: Boolean = false) {
         }
     }
 
-    fun reconnect() {
+    fun reconnectWithNormalUser() {
         log.info { "Reconnect with $role" }
         Database.connect(dataSource())
     }
