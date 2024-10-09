@@ -97,6 +97,7 @@ class PostgresDatabase(val target: Boolean = true) {
 
     fun lastId(legacyDb: String = "arkivv4") {
         val chosen = if (target) "arkiv" else legacyDb
+        log.info { "Will attempt lastId fetch for $chosen" }
         Database.connect(dataSource())
         transaction() {
             // Option 1: Get the ID of the last row

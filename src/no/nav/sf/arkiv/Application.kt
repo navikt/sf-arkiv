@@ -72,7 +72,6 @@ class Application(
         DB.postgresDatabase.lastId("arkivv4")
         DB.targetPostgresDatabase.lastId()
         DB.targetPostgresDatabase.reconnectWithNormalUser()
-        log.info { "Will try add test data " }
         // doAddTestData()
         doSearch()
 
