@@ -63,10 +63,11 @@ class Application(
 
         DB.listTables(true)
 
-        // DB.targetPostgresDatabase.create()
+        DB.targetPostgresDatabase.create()
         // DB.postgresDatabase.reconnect()
         // DB.targetPostgresDatabase.grant()
         DB.targetPostgresDatabase.reconnectWithNormalUser()
+        doAddTestData()
         doSearch()
 
         scheduleServerShutdown()

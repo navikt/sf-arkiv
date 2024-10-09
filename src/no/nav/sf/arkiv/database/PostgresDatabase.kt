@@ -87,8 +87,6 @@ class PostgresDatabase(val target: Boolean = false) {
     fun create() {
         val admin = Database.connect(dataSource(admin = true))
         transaction(admin) {
-            // log.info { "Dropping ArkivV4" }
-            // SchemaUtils.drop(ArkivV4)
             exec("SET ROLE \"$adminRole\"")
 
             log.info { "Creating table Arkiv" }
