@@ -60,6 +60,7 @@ class Application(
         apiServer(NAIS_DEFAULT_PORT).start()
 
         DB.listTables()
+        DB.listTables(true)
 
         isReady = true // If made it so far connection established and kubernetes might allow traffic
 
