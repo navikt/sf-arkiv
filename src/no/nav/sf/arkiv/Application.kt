@@ -58,21 +58,12 @@ class Application(
     fun start() {
         log.info { "Starting ${if (isDev) "DEV" else "PROD"}" }
         apiServer(NAIS_DEFAULT_PORT).start()
-        // doAddTestData()
-        // health check
-        try {
-            DB.listTables(true)
-        } catch (e: Exception) {
-            log.error { "Exception at list target $e" }
-        }
 
-        try {
-            DB.listTables()
-        } catch (e: Exception) {
-            log.error { "Exception at list old $e" }
-        }
+        DB.listTables()
 
-        DB.targetPostgresDatabase.create()
+        DB.listTables(true)
+
+        // DB.targetPostgresDatabase.create()
         // DB.postgresDatabase.reconnect()
         // DB.targetPostgresDatabase.grant()
         DB.targetPostgresDatabase.reconnectWithNormalUser()
