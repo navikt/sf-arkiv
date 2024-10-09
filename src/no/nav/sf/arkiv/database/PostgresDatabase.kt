@@ -35,6 +35,7 @@ class PostgresDatabase(val target: Boolean = false) {
 
         while (currentRetry < maxRetries) {
             try {
+                log.info { "creating Hikari Data Source with catch" }
                 // Try to create the HikariDataSource with Vault integration
                 return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(
                     hikariConfig(),
@@ -66,6 +67,7 @@ class PostgresDatabase(val target: Boolean = false) {
             }
         }
 
+        // Fallback - should not be reachable
         throw RuntimeException("Failed to create HikariDataSource after $maxRetries attempts")
     }
 

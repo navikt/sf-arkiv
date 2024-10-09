@@ -56,7 +56,7 @@ class Application(
     val gson = GsonBuilder().setPrettyPrinting().create()
 
     fun start() {
-        log.info { "Starting ${if (isDev) "DEV" else "PROD"} exp" }
+        log.info { "Starting ${if (isDev) "DEV" else "PROD"}" }
         apiServer(NAIS_DEFAULT_PORT).start()
         // doAddTestData()
         // health check
