@@ -67,9 +67,10 @@ class Application(
         // DB.targetPostgresDatabase.create()
         // DB.postgresDatabase.reconnect()
         // DB.targetPostgresDatabase.grant()
-
-        DB.targetPostgresDatabase.idQuery("arkivv3", tablesTarget)
-        DB.targetPostgresDatabase.idQuery("arkivv4", tablesTarget)
+        if (!isDev) {
+            DB.targetPostgresDatabase.idQuery("arkivv3", tablesTarget)
+            DB.targetPostgresDatabase.idQuery("arkivv4", tablesTarget) // Bad table in dev-fss
+        }
         DB.targetPostgresDatabase.idQuery("arkiv", tablesTarget)
 
         isReady = true // If made it so far connection established and kubernetes might allow traffic
