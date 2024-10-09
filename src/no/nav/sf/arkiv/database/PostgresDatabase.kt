@@ -96,13 +96,22 @@ class PostgresDatabase(val target: Boolean = false) {
         log.info { "Create Done" }
     }
 
+    fun grant(tableName: String) {
+        val admin = Database.connect(dataSource(admin = true))
+        transaction(admin) {
+            val quotedRoleName = "\"$role\""
+            exec("GRANT INSERT, SELECT ON TABLE $tableName TO $quotedRoleName")
+            exec("GRANT INSERT, SELECT ON TABLE $tableName TO $quotedRoleName")
+        }
+    }
+
     fun idQuery(tableName: String, refList: List<String>) {
         if (!refList.contains(tableName)) {
             log.info { "$tableName not present in reference list of tables - skip idQuery" }
             return
         }
         log.info { "Will attempt lastId fetch for $tableName" }
-        Database.connect(dataSource(true))
+        Database.connect(dataSource())
         transaction() {
             // Option 1: Get the ID of the last row
             val lastRow =

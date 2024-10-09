@@ -68,12 +68,14 @@ class Application(
         // DB.postgresDatabase.reconnect()
         // DB.targetPostgresDatabase.grant()
         if (!isDev) {
+            DB.targetPostgresDatabase.grant("arkivv3")
+            DB.targetPostgresDatabase.grant("arkivv4")
             DB.targetPostgresDatabase.idQuery("arkivv3", tablesTarget)
             DB.targetPostgresDatabase.idQuery("arkivv4", tablesTarget) // Bad table in dev-fss
         }
         DB.targetPostgresDatabase.idQuery("arkiv", tablesTarget)
 
-        isReady = true // If made it so far connection established and kubernetes might allow traffic
+        isReady = true // If made it so far connection established kubernetes can allow traffic
 
         DB.targetPostgresDatabase.reconnectWithNormalUser()
         // doAddTestData()
