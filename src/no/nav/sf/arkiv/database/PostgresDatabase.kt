@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.net.SocketTimeoutException
+import java.time.Instant
 
 class PostgresDatabase(val target: Boolean = false) {
 
@@ -95,17 +96,24 @@ class PostgresDatabase(val target: Boolean = false) {
         log.info { "Create Done" }
     }
 
-    fun lastId(legacyDb: String = "arkivv4") {
-        val chosen = if (target) "arkiv" else legacyDb
-        log.info { "Will attempt lastId fetch for $chosen" }
+    fun idQuery(tableName: String) {
+        log.info { "Will attempt lastId fetch for $tableName" }
         Database.connect(dataSource())
         transaction() {
             // Option 1: Get the ID of the last row
-            val lastRowId =
-                exec("SELECT id FROM $chosen ORDER BY id DESC LIMIT 1") { rs ->
-                    if (rs.next()) rs.getInt("id") else 0
+            val lastRow =
+                exec("SELECT id, dato FROM $tableName ORDER BY id DESC LIMIT 1") { rs ->
+                    val id = if (rs.next()) rs.getLong("id") else 0
+                    val dato = if (rs.next()) rs.getTimestamp("dato").toInstant() else Instant.EPOCH
+                    id to dato
                 }
-            log.info { "Last row ID: $lastRowId in $chosen" }
+            val firstRow =
+                exec("SELECT id, dato FROM $tableName ORDER BY id ASC LIMIT 1") { rs ->
+                    val id = if (rs.next()) rs.getLong("id") else 0
+                    val dato = if (rs.next()) rs.getTimestamp("dato").toInstant() else Instant.EPOCH
+                    id to dato
+                }
+            log.info { "First and Last ID and dato: $firstRow - $lastRow in $tableName with $role" }
         }
     }
 

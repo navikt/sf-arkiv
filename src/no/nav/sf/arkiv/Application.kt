@@ -62,16 +62,17 @@ class Application(
         DB.listTables()
         DB.listTables(true)
 
-        isReady = true // If made it so far connection established and kubernetes might allow traffic
-
         // DB.listTables(true)
 
         // DB.targetPostgresDatabase.create()
         // DB.postgresDatabase.reconnect()
         // DB.targetPostgresDatabase.grant()
-        DB.postgresDatabase.lastId("arkivv3")
-        DB.postgresDatabase.lastId("arkivv4")
-        DB.targetPostgresDatabase.lastId()
+        DB.targetPostgresDatabase.idQuery("arkivv3")
+        DB.targetPostgresDatabase.idQuery("arkivv4")
+        DB.targetPostgresDatabase.idQuery("arkiv")
+
+        isReady = true // If made it so far connection established and kubernetes might allow traffic
+
         DB.targetPostgresDatabase.reconnectWithNormalUser()
         // doAddTestData()
         doSearch()
