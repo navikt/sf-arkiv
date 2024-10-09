@@ -20,8 +20,8 @@ class PostgresDatabase(val target: Boolean = false) {
     private val log = KotlinLogging.logger { }
 
     private val vaultMountPath = mountPath
-    private val adminUsername = "${if (target) targetDbName else dbName}-admin"
-    private val username = "${if (target) targetDbName else dbName}-user"
+    private val adminRole = "${if (target) targetDbName else dbName}-admin"
+    private val role = "${if (target) targetDbName else dbName}-user"
 
     // Note: exposed Database connect prepares for connections but does not actually open connections
     // That is handled via transaction {} ensuring connections are opened and closed properly
@@ -40,7 +40,7 @@ class PostgresDatabase(val target: Boolean = false) {
                 return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(
                     hikariConfig(),
                     vaultMountPath,
-                    if (admin) adminUsername else username
+                    if (admin) adminRole else role
                 )
             } catch (e: Exception) {
                 currentRetry++
@@ -97,13 +97,14 @@ class PostgresDatabase(val target: Boolean = false) {
         val admin = Database.connect(dataSource(admin = true))
         transaction(admin) {
             log.info { "Granting on arkivv4" }
-            exec("GRANT INSERT, SELECT ON TABLE arkivv4 TO $username")
-            log.info { "Granting on arkivv4 donw" }
+            val quotedRoleName = "\"$role\""
+            exec("GRANT INSERT, SELECT ON TABLE arkivv4 TO $quotedRoleName")
+            log.info { "Granting on arkivv4 done" }
         }
     }
 
     fun reconnect() {
-        log.info { "Reconnect with $username" }
+        log.info { "Reconnect with $role" }
         Database.connect(dataSource())
     }
 
