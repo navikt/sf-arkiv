@@ -6,7 +6,6 @@ import no.nav.sf.arkiv.isDev
 import no.nav.sf.arkiv.model.Arkiv
 import no.nav.sf.arkiv.model.ArkivModel
 import no.nav.sf.arkiv.model.ArkivResponse
-import no.nav.sf.arkiv.model.ArkivV3
 import no.nav.sf.arkiv.model.DOKUMENTASJON_LENGTH
 import no.nav.sf.arkiv.model.HenteModel
 import no.nav.sf.arkiv.model.HenteResponse
@@ -27,7 +26,6 @@ import java.io.File
 private val log = KotlinLogging.logger { }
 
 object DB {
-    val targetPostgresDatabase = PostgresDatabase(true)
     val postgresDatabase = PostgresDatabase()
 
     fun addArchive(requestBody: List<ArkivModel>): List<ArkivResponse> {
@@ -139,48 +137,6 @@ object DB {
         else this and expr
     }
 
-    fun henteArchive(henteRequest: HenteModel): List<HenteResponse> {
-        if (isDev) log.info { "henteArchive henteRequest: $henteRequest (Log in dev)" }
-        var result: List<HenteResponse> = listOf()
-        transaction {
-            val query = ArkivV3.selectAll()
-            if (henteRequest.id.isNotEmpty()) query.andWhere { ArkivV3.id eq henteRequest.id.toLong() }
-            if (henteRequest.aktoerid.isNotEmpty()) query.andWhere { ArkivV3.aktoerid eq henteRequest.aktoerid }
-            if (henteRequest.fnr.isNotEmpty()) query.andWhere { ArkivV3.fnr eq henteRequest.fnr }
-            if (henteRequest.orgnr.isNotEmpty()) query.andWhere { ArkivV3.orgnr eq henteRequest.orgnr }
-            if (henteRequest.tema.isNotEmpty()) query.andWhere { ArkivV3.tema eq henteRequest.tema }
-            if (henteRequest.kilde.isNotEmpty()) query.andWhere { ArkivV3.kilde eq henteRequest.kilde }
-            if (henteRequest.dokumentasjonId.isNotEmpty()) query.andWhere { ArkivV3.dokumentasjonId eq henteRequest.dokumentasjonId }
-            if (henteRequest.dokumentdato.isNotEmpty()) query.andWhere {
-                ArkivV3.dokumentdato eq DateTime.parse(
-                    henteRequest.dokumentdato,
-                    fmt_onlyDay
-                )
-            }
-            query.andWhere { ArkivV3.konfidentiellt eq false }
-
-            val resultRow = query.toList()
-            File("/tmp/queryListHenteArchive").writeText(resultRow.toString())
-            result = resultRow.map {
-                HenteResponse(
-                    id = it[ArkivV3.id],
-                    dato = fmt.print(it[ArkivV3.dato]),
-                    opprettetAv = it[ArkivV3.opprettetAv],
-                    kilde = it[ArkivV3.kilde],
-                    dokumentasjonId = it[ArkivV3.dokumentasjonId],
-                    dokumentasjon = it[ArkivV3.dokumentasjon],
-                    dokumentdato = fmt_onlyDay.print(it[ArkivV3.dokumentdato]),
-                    aktoerid = it[ArkivV3.aktoerid],
-                    fnr = it[ArkivV3.fnr],
-                    orgnr = it[ArkivV3.orgnr],
-                    tema = it[ArkivV3.tema]
-                )
-            }
-        }
-        log.info { "henteArchive returns ${result.size} entries" }
-        return result.sortedBy { it.id }
-    }
-
     fun henteArchiveV4(henteRequest: HenteModel): List<HenteResponse> {
         if (isDev) log.info { "henteArchive v4 henteRequest: $henteRequest (Log in dev)" }
         var result: List<HenteResponse> = listOf()
@@ -233,15 +189,15 @@ object DB {
         }
     }
 
-    fun listTables(target: Boolean = false): List<String> {
+    fun listTables(): List<String> {
         val result: MutableList<String> = mutableListOf()
-        transaction(if (target) targetPostgresDatabase.databaseConnection else postgresDatabase.databaseConnection) {
-            log.info { "Tables in target $target:" }
+        transaction(postgresDatabase.databaseConnection) {
+            log.info { "Tables:" }
             SchemaUtils.listTables().forEach {
                 log.info { it }
                 result.add(it.removePrefix("public."))
             }
-            log.info { " - end tables in target $target" }
+            log.info { " - end tables" }
         }
         return result
     }

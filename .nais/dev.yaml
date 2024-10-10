@@ -68,11 +68,7 @@ spec:
       value: '600000'
     - name: MOUNT_PATH
       value: /postgresql/preprod-fss
-    - name: DB_NAME
-      value: arkiv-dokumentasjon #sf-arkiv #arkiv-dokumentasjon
-    - name: DB_URL
-      value: jdbc:postgresql://b27dbvl023.preprod.local:5432/arkiv-dokumentasjon #jdbc:postgresql://b27dbvl026.preprod.local:5432/sf-arkiv #jdbc:postgresql://b27dbvl023.preprod.local:5432/arkiv-dokumentasjon
     - name: TARGET_DB_NAME
-      value: sf-arkiv #sf-arkiv #arkiv-dokumentasjon
+      value: sf-arkiv
     - name: TARGET_DB_URL
-      value: jdbc:postgresql://b27dbvl026.preprod.local:5432/sf-arkiv #jdbc:postgresql://b27dbvl026.preprod.local:5432/sf-arkiv #jdbc:postgresql://b27dbvl023.preprod.local:5432/arkiv-dokumentasjon
+      value: jdbc:postgresql://b27dbvl026.preprod.local:5432/sf-arkiv

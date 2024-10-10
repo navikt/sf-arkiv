@@ -3,8 +3,6 @@ package no.nav.sf.arkiv.database
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
-import no.nav.sf.arkiv.dbName
-import no.nav.sf.arkiv.dbUrl
 import no.nav.sf.arkiv.model.Arkiv
 import no.nav.sf.arkiv.mountPath
 import no.nav.sf.arkiv.targetDbName
@@ -16,13 +14,13 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.net.SocketTimeoutException
 import java.time.Instant
 
-class PostgresDatabase(val target: Boolean = false) {
+class PostgresDatabase() {
 
     private val log = KotlinLogging.logger { }
 
     private val vaultMountPath = mountPath
-    private val adminRole = "${if (target) targetDbName else dbName}-admin"
-    private val role = "${if (target) targetDbName else dbName}-user"
+    private val adminRole = "$targetDbName-admin"
+    private val userTole = "$targetDbName-user"
 
     // Note: exposed Database connect prepares for connections but does not actually open connections
     // That is handled via transaction {} ensuring connections are opened and closed properly
@@ -36,12 +34,11 @@ class PostgresDatabase(val target: Boolean = false) {
 
         while (currentRetry < maxRetries) {
             try {
-                log.info { "creating Hikari Data Source with catch" }
-                // Try to create the HikariDataSource with Vault integration
+                log.info { "Attempting creatin Hikari Data Source with catch of SocketTimeout causes" }
                 return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(
                     hikariConfig(),
                     vaultMountPath,
-                    if (admin) adminRole else role
+                    if (admin) adminRole else userTole
                 )
             } catch (e: Exception) {
                 currentRetry++
@@ -74,7 +71,7 @@ class PostgresDatabase(val target: Boolean = false) {
 
     private fun hikariConfig(): HikariConfig {
         return HikariConfig().apply {
-            jdbcUrl = if (target) targetDbUrl else dbUrl
+            jdbcUrl = targetDbUrl
             minimumIdle = 1
             maxLifetime = 26000
             maximumPoolSize = 4
@@ -99,7 +96,7 @@ class PostgresDatabase(val target: Boolean = false) {
     fun grant(tableName: String) {
         val admin = Database.connect(dataSource(admin = true))
         transaction(admin) {
-            val quotedRoleName = "\"$role\""
+            val quotedRoleName = "\"$userTole\""
             exec("GRANT INSERT, SELECT ON TABLE $tableName TO $quotedRoleName")
             exec("GRANT INSERT, SELECT ON TABLE $tableName TO $quotedRoleName")
         }
@@ -128,12 +125,12 @@ class PostgresDatabase(val target: Boolean = false) {
                     val dato = if (found) rs.getTimestamp("dato").toInstant() else Instant.EPOCH
                     id to dato
                 }
-            log.info { "First and Last ID and dato: $firstRow - $lastRow in $tableName with $role" }
+            log.info { "First and Last ID and dato: $firstRow - $lastRow in $tableName with $userTole" }
         }
     }
 
     fun reconnectWithNormalUser() {
-        log.info { "Reconnect with $role" }
+        log.info { "Reconnect with $userTole" }
         Database.connect(dataSource())
     }
 

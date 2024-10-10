@@ -9,7 +9,6 @@ import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import no.nav.sf.arkiv.database.DB
 import no.nav.sf.arkiv.database.DB.addArchive
-import no.nav.sf.arkiv.database.DB.henteArchive
 import no.nav.sf.arkiv.database.DB.henteArchiveV4
 import no.nav.sf.arkiv.model.ArkivModel
 import no.nav.sf.arkiv.model.HenteModel
@@ -42,8 +41,6 @@ const val NAIS_DEFAULT_PORT = 8080
 
 val isDev: Boolean = System.getenv("CONTEXT") == "DEV"
 val mountPath = System.getenv("MOUNT_PATH")
-val dbName = System.getenv("DB_NAME")
-val dbUrl = System.getenv("DB_URL")
 val targetDbName = System.getenv("TARGET_DB_NAME")
 val targetDbUrl = System.getenv("TARGET_DB_URL")
 
@@ -59,25 +56,24 @@ class Application(
         log.info { "Starting ${if (isDev) "DEV" else "PROD"}" }
         apiServer(NAIS_DEFAULT_PORT).start()
 
-        val tablesOld = DB.listTables()
-        val tablesTarget = DB.listTables(true)
+        val tablesTarget = DB.listTables()
 
         // DB.listTables(true)
 
         // DB.targetPostgresDatabase.create()
         // DB.postgresDatabase.reconnect()
         // DB.targetPostgresDatabase.grant()
-        if (!isDev) {
-            // DB.targetPostgresDatabase.grant("arkivv3")
-            // DB.targetPostgresDatabase.grant("arkivv4")
-            DB.targetPostgresDatabase.idQuery("arkivv3", tablesTarget)
-            DB.targetPostgresDatabase.idQuery("arkivv4", tablesTarget) // Bad table in dev-fss
-        }
-        DB.targetPostgresDatabase.idQuery("arkiv", tablesTarget)
+        // if (!isDev) {
+        // DB.targetPostgresDatabase.grant("arkivv3")
+        // DB.targetPostgresDatabase.grant("arkivv4")
+        // DB.targetPostgresDatabase.idQuery("arkivv3", tablesTarget)
+        // DB.targetPostgresDatabase.idQuery("arkivv4", tablesTarget) // Bad table in dev-fss
+        // }
+        // DB.postgresDatabase.idQuery("arkiv", tablesTarget)
 
         isReady = true // If made it so far connection established kubernetes can allow traffic
 
-        DB.targetPostgresDatabase.reconnectWithNormalUser()
+        // DB.postgresDatabase.reconnectWithNormalUser()
         // doAddTestData()
         doSearch()
 
@@ -149,7 +145,7 @@ class Application(
                 } else if (!henteModel.hasValidDokumentDato()) {
                     Response(Status.BAD_REQUEST).body("Request contains invalid dokumentdato (correct format is empty or yyyy-MM-dd)")
                 } else {
-                    val responses = henteArchive(henteModel) + henteArchiveV4(henteModel)
+                    val responses = henteArchiveV4(henteModel)
                     log.info { "Hente successful response with ${responses.size} entries" }
                     val asJson = gson.toJson(responses)
                     File("/tmp/henteresult").writeText(asJson)
@@ -158,10 +154,6 @@ class Application(
             } else {
                 Response(Status.UNAUTHORIZED).body("Hente call denied - missing valid token")
             }
-        },
-        "/prov" bind Method.POST to { _ ->
-            doSearch()
-            Response(Status.OK).body("Triggered")
         }
     )
 }
