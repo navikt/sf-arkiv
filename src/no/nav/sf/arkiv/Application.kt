@@ -58,17 +58,6 @@ class Application(
 
         val tablesTarget = DB.listTables()
 
-        // DB.listTables(true)
-
-        // DB.targetPostgresDatabase.create()
-        // DB.postgresDatabase.reconnect()
-        // DB.targetPostgresDatabase.grant()
-        // if (!isDev) {
-        // DB.targetPostgresDatabase.grant("arkivv3")
-        // DB.targetPostgresDatabase.grant("arkivv4")
-        // DB.targetPostgresDatabase.idQuery("arkivv3", tablesTarget)
-        // DB.targetPostgresDatabase.idQuery("arkivv4", tablesTarget) // Bad table in dev-fss
-        // }
         // DB.postgresDatabase.idQuery("arkiv", tablesTarget)
 
         isReady = true // If made it so far connection established kubernetes can allow traffic
