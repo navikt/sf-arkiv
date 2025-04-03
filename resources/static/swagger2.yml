@@ -1,0 +1,167 @@
+openapi: 3.0.1
+info:
+  title: Arkiv dokumentasjon
+  description: API for arkiv dokumentasjon
+  version: "1.0"
+servers:
+  - url: https://arkivdokumentasjon.dev.intern.nav.no
+  - url: https://arkivdokumentasjon.intern.nav.no
+paths:
+  /arkiv:
+    post:
+      tags:
+        - Arkiv
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ArkivModel'
+        required: true
+      responses:
+        201:
+          description: OK - arkivert
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArkivResponse'
+        400:
+          description: Ugyldig forespørsel
+        401:
+          description: Giltigt token mangler
+          content: {}
+      x-codegen-request-body-name: body
+  /hente:
+    post:
+      tags:
+        - Arkiv
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HenteModel'
+            example:
+              kilde: "string"
+              dokumentasjonId: "string"
+              dokumentdato: "2021-01-02"
+              aktoerid: "string"
+              fnr: "string"
+              orgnr: "string"
+              tema: "string"
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HenteResponse'
+        400:
+          description: Ugyldig forespørsel
+        401:
+          description: Giltigt token manglar
+          content: {}
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    ArkivModel:
+      type: object
+      properties:
+        dokumentasjon:
+          type: string
+        kilde:
+          type: string
+        opprettetAv:
+          type: string
+        dokumentasjonId:
+          type: string
+        dokumentdato:
+          type: string
+        aktoerid:
+          type: string
+        fnr:
+          type: string
+        orgnr:
+          type: string
+        tema:
+          type: string
+        konfidentiellt:
+          type: boolean
+    ArkivResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        dato:
+          type: string
+        dokumentasjonId:
+          type: string
+        dokumentasjonSummarized:
+          type: string
+        kilde:
+          type: string
+        opprettetAv:
+          type: string
+        aktoerid:
+          type: string
+        fnr:
+          type: string
+        orgnr:
+          type: string
+        tema:
+          type: string
+        konfidentiellt:
+          type: boolean
+    HenteModel:
+      type: object
+      properties:
+        kilde:
+          type: string
+          default: ""
+        dokumentasjonId:
+          type: string
+        dokumentdato:
+          type: string
+          default: ""
+        aktoerid:
+          type: string
+          default: ""
+        fnr:
+          type: string
+          default: ""
+        orgnr:
+          type: string
+          default: ""
+        tema:
+          type: string
+          default: ""
+    HenteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        dato:
+          type: string
+        dokumentasjonId:
+          type: string
+        dokumentasjon:
+          type: string
+        kilde:
+          type: string
+        opprettetAv:
+          type: string
+        aktoerid:
+          type: string
+        fnr:
+          type: string
+        orgnr:
+          type: string
+        tema:
+          type: string
