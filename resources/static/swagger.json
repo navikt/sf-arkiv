@@ -45,9 +45,8 @@
             }
           },
           "400": {"description": "Ugyldig forespørsel"},
-          "401": {"description": "Giltigt token mangler", "content": {}}
-        },
-        "x-codegen-request-body-name": "body"
+          "401": {"description": "Giltigt token mangler"}
+        }
       }
     },
     "/hente": {
@@ -87,9 +86,8 @@
             }
           },
           "400": {"description": "Ugyldig forespørsel"},
-          "401": {"description": "Giltigt token manglar", "content": {}}
-        },
-        "x-codegen-request-body-name": "body"
+          "401": {"description": "Giltigt token manglar"}
+        }
       }
     }
   },
