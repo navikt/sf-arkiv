@@ -24,8 +24,8 @@ import org.http4k.routing.ResourceLoader
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.routing.static
-import org.http4k.server.ApacheServer
 import org.http4k.server.Http4kServer
+import org.http4k.server.Netty
 import org.http4k.server.asServer
 import java.io.File
 import java.io.StringWriter
@@ -69,7 +69,7 @@ class Application(
         scheduleServerShutdown()
     }
 
-    fun apiServer(port: Int): Http4kServer = api().asServer(ApacheServer(port))
+    fun apiServer(port: Int): Http4kServer = api().asServer(Netty(port))
 
     @Volatile
     var isReady: Boolean = false
@@ -87,7 +87,7 @@ class Application(
             )
         },
         "/authping" bind Method.GET to { r ->
-            Response(Status.OK).body("Auth: ${tokenValidator.firstValidToken(r).isPresent()}")
+            Response(Status.OK).body("Auth: ${tokenValidator.firstValidToken(r) != null}")
         },
         "/arkiv" bind Method.POST to { r ->
             Metrics.requestArkiv.inc()
@@ -95,7 +95,7 @@ class Application(
                 val typeToken = object : TypeToken<List<ArkivModel>>() {}.type
                 val arkivItems = gson.fromJson<List<ArkivModel>>(r.bodyString(), typeToken)
                 val devBypass = isDev && arkivItems.first().kilde == "test"
-                if (devBypass || tokenValidator.firstValidToken(r).isPresent()) {
+                if (devBypass || tokenValidator.firstValidToken(r) != null) {
                     log.info { "Authorized call to Arkiv" }
                     if (arkivItems.any { !it.hasValidDokumentDato() }) {
                         Response(
@@ -127,7 +127,7 @@ class Application(
             Metrics.requestHente.inc()
             val henteModel = gson.fromJson<HenteModel>(r.bodyString(), HenteModel::class.java)
             val devBypass = isDev && henteModel.kilde == "test"
-            if (devBypass || tokenValidator.firstValidToken(r).isPresent()) {
+            if (devBypass || tokenValidator.firstValidToken(r) != null) {
                 log.info { "Authorized call to Hente" }
                 if (henteModel.isEmpty()) {
                     Response(Status.BAD_REQUEST).body("Request contains no search parameters, that is not allowed")

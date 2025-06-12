@@ -9,13 +9,12 @@ import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
 import org.http4k.core.Request
 import java.io.File
 import java.net.URL
-import java.util.Optional
 
 const val env_AZURE_APP_WELL_KNOWN_URL = "AZURE_APP_WELL_KNOWN_URL"
 const val env_AZURE_APP_CLIENT_ID = "AZURE_APP_CLIENT_ID"
 
 interface TokenValidator {
-    fun firstValidToken(request: Request): Optional<JwtToken>
+    fun firstValidToken(request: Request): JwtToken?
 }
 
 class DefaultTokenValidator : TokenValidator {
@@ -37,14 +36,14 @@ class DefaultTokenValidator : TokenValidator {
 
     fun containsValidToken(request: Request): Boolean {
         val firstValidToken = jwtTokenValidationHandler.getValidatedTokens(request.toNavRequest()).firstValidToken
-        return firstValidToken.isPresent
+        return firstValidToken != null
     }
 
     var latestValidationTime = 0L
 
-    override fun firstValidToken(request: Request): Optional<JwtToken> {
-        val result: Optional<JwtToken> = jwtTokenValidationHandler.getValidatedTokens(request.toNavRequest()).firstValidToken
-        if (!result.isPresent) {
+    override fun firstValidToken(request: Request): JwtToken? {
+        val result: JwtToken? = jwtTokenValidationHandler.getValidatedTokens(request.toNavRequest()).firstValidToken
+        if (result == null) {
             File("/tmp/novalidtoken").writeText(request.toMessage())
         }
         return result
@@ -55,9 +54,6 @@ class DefaultTokenValidator : TokenValidator {
         return object : HttpRequest {
             override fun getHeader(headerName: String): String {
                 return req.header(headerName) ?: ""
-            }
-            override fun getCookies(): Array<HttpRequest.NameValue> {
-                return arrayOf()
             }
         }
     }
