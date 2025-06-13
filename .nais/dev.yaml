@@ -40,7 +40,7 @@ spec:
     - "https://sf-arkiv-dokumentasjon.dev-fss-pub.nais.io"
   vault:
     enabled: true
-  webproxy: true
+#  webproxy: true
   azure:
     application:
       enabled: true
@@ -61,7 +61,6 @@ spec:
     outbound:
       external:
         - host: login.microsoftonline.com
-
   env:
     - name: CONTEXT
       value: DEV

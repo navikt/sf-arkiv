@@ -1,4 +1,4 @@
-package no.nav.sf.henvendelse.api.proxy.token
+package no.nav.sf.arkiv.token
 
 import mu.KotlinLogging
 import no.nav.security.token.support.core.configuration.IssuerProperties

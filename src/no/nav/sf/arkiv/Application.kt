@@ -14,8 +14,8 @@ import no.nav.sf.arkiv.model.ArkivModel
 import no.nav.sf.arkiv.model.HenteModel
 import no.nav.sf.arkiv.model.hasValidDokumentDato
 import no.nav.sf.arkiv.model.isEmpty
-import no.nav.sf.henvendelse.api.proxy.token.DefaultTokenValidator
-import no.nav.sf.henvendelse.api.proxy.token.TokenValidator
+import no.nav.sf.arkiv.token.DefaultTokenValidator
+import no.nav.sf.arkiv.token.TokenValidator
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Response
