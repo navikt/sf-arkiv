@@ -46,17 +46,17 @@ jobs:
           CLUSTER: dev-fss
           RESOURCE: .nais/dev.yaml
           VAR: image=${{ needs.build.outputs.image }}
-#  deploy-prod:
-#    name: Deploy to prod-fss
-#    needs: build
-#    runs-on: ubuntu-latest
-#    permissions:
-#      id-token: write
-#      contents: read
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: nais/deploy/actions/deploy@v2
-#        env:
-#          CLUSTER: prod-fss
-#          RESOURCE: .nais/prod.yaml
-#          VAR: image=${{ needs.build.outputs.image }}
+  deploy-prod:
+    name: Deploy to prod-fss
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: prod-fss
+          RESOURCE: .nais/prod.yaml
+          VAR: image=${{ needs.build.outputs.image }}
