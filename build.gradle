@@ -40,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    implementation "no.nav.security:token-validation-core:5.0.29"
+    implementation "no.nav.security:token-validation-core:4.1.5" //5.0.29
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1'
 
