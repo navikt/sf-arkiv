@@ -7,4 +7,4 @@ Database provisioning setup in database-iac [preprod](https://github.com/navikt/
 
 For db assistance see slack channel #postgres
 
-Carl Heinz
+Karl Heinz
