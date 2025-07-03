@@ -4,7 +4,7 @@ plugins {
     id 'application'
     id 'org.jmailen.kotlinter' version '3.2.0'
     id 'org.jetbrains.kotlin.jvm' version '1.9.24'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'com.gradleup.shadow' version '8.3.1'
 }
 
 jar {
@@ -71,12 +71,6 @@ dependencies {
     implementation "io.netty:netty-handler:4.1.118.Final" //4.1.117.Final has vulnerability
     implementation "io.netty:netty-common:4.1.118.Final" //4.1.117.Final has vulnerability
     implementation "org.http4k:http4k-client-okhttp:5.14.4.0"
-
-//    implementation "net.minidev:json-smart:2.4.9" //Desired transient json-smart to token-validation above
-//    implementation "org.apache.commons:commons-compress:1.26.0" //transient http4k-apache
-//    implementation "org.apache.httpcomponents:httpclient:4.5.13" //Desired transient httpclient to http4k-apache
-//    implementation "com.nimbusds:nimbus-jose-jwt:9.37.2"
-//    implementation "commons-io:commons-io:2.14.0"
 }
 
 tasks.withType(KotlinCompile) {
