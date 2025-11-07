@@ -14,7 +14,7 @@ data class ArkivModel(
     var fnr: String = "",
     var orgnr: String = "",
     var tema: String = "",
-    var konfidentiellt: Boolean = false
+    var konfidentiellt: Boolean = false,
 )
 
 data class HenteModel(
@@ -25,7 +25,7 @@ data class HenteModel(
     val aktoerid: String = "",
     val fnr: String = "",
     val orgnr: String = "",
-    val tema: String = ""
+    val tema: String = "",
 )
 
 data class ArkivResponse(
@@ -40,7 +40,7 @@ data class ArkivResponse(
     val fnr: String,
     val orgnr: String,
     val tema: String,
-    val konfidentiellt: Boolean
+    val konfidentiellt: Boolean,
 )
 
 data class HenteResponse(
@@ -54,7 +54,7 @@ data class HenteResponse(
     val aktoerid: String,
     val fnr: String,
     val orgnr: String,
-    val tema: String
+    val tema: String,
 )
 
 fun ArkivModel.hasValidDokumentDato(): Boolean {
@@ -68,9 +68,10 @@ fun ArkivModel.hasValidDokumentDato(): Boolean {
     return true
 }
 
-fun HenteModel.isEmpty(): Boolean {
-    return id.isEmpty() && kilde.isEmpty() && dokumentasjonId.isEmpty() && dokumentdato.isEmpty() && aktoerid.isEmpty() && fnr.isEmpty() && orgnr.isEmpty() && tema.isEmpty()
-}
+fun HenteModel.isEmpty(): Boolean =
+    id.isEmpty() && kilde.isEmpty() && dokumentasjonId.isEmpty() && dokumentdato.isEmpty() && aktoerid.isEmpty() && fnr.isEmpty() &&
+        orgnr.isEmpty() &&
+        tema.isEmpty()
 
 fun HenteModel.hasValidDokumentDato(): Boolean {
     if (this.dokumentdato.isNotEmpty()) {

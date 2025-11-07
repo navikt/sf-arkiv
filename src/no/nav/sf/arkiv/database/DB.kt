@@ -36,7 +36,6 @@ object DB {
         }
         val result: MutableList<ArkivResponse> = mutableListOf()
         transaction {
-
             // Allow dokumentasjon to be any length - split it up if it exceeds column size
             val modelSplitToFit: MutableList<ArkivModel> = mutableListOf()
             requestBody.forEach { arkivModel ->
@@ -55,8 +54,8 @@ object DB {
                                 fnr = arkivModel.fnr,
                                 orgnr = arkivModel.orgnr,
                                 tema = arkivModel.tema,
-                                konfidentiellt = arkivModel.konfidentiellt
-                            )
+                                konfidentiellt = arkivModel.konfidentiellt,
+                            ),
                         )
                     }
                 }
@@ -73,35 +72,37 @@ object DB {
                     val update = false // id > -1 //TODO Only insert for now
                     log.info { "Will attempt ${if (update) "update" else "insert"}" }
                     val now = DateTime.now()
-                    val resultId = if (update) {
-                        Arkiv.update({ Arkiv.dokumentasjonId eq payload.dokumentasjonId }) {
-                            it[dato] = now
-                            it[opprettetAv] = payload.opprettetAv
-                            it[kilde] = payload.kilde
-                            it[dokumentasjon] = payload.dokumentasjon
-                            it[dokumentasjonId] = payload.dokumentasjonId
-                            it[dokumentdato] = DateTime.parse(payload.dokumentdato, fmt_onlyDay)
-                            it[aktoerid] = payload.aktoerid
-                            it[fnr] = payload.fnr
-                            it[orgnr] = payload.orgnr
-                            it[tema] = payload.tema
-                            it[konfidentiellt] = payload.konfidentiellt
-                        }; id
-                    } else {
-                        Arkiv.insert {
-                            it[dato] = now
-                            it[opprettetAv] = payload.opprettetAv
-                            it[kilde] = payload.kilde
-                            it[dokumentasjon] = payload.dokumentasjon
-                            it[dokumentasjonId] = payload.dokumentasjonId
-                            it[dokumentdato] = DateTime.parse(payload.dokumentdato, fmt_onlyDay)
-                            it[aktoerid] = payload.aktoerid
-                            it[fnr] = payload.fnr
-                            it[orgnr] = payload.orgnr
-                            it[tema] = payload.tema
-                            it[konfidentiellt] = payload.konfidentiellt
-                        } get Arkiv.id
-                    }
+                    val resultId =
+                        if (update) {
+                            Arkiv.update({ Arkiv.dokumentasjonId eq payload.dokumentasjonId }) {
+                                it[dato] = now
+                                it[opprettetAv] = payload.opprettetAv
+                                it[kilde] = payload.kilde
+                                it[dokumentasjon] = payload.dokumentasjon
+                                it[dokumentasjonId] = payload.dokumentasjonId
+                                it[dokumentdato] = DateTime.parse(payload.dokumentdato, fmt_onlyDay)
+                                it[aktoerid] = payload.aktoerid
+                                it[fnr] = payload.fnr
+                                it[orgnr] = payload.orgnr
+                                it[tema] = payload.tema
+                                it[konfidentiellt] = payload.konfidentiellt
+                            }
+                            id
+                        } else {
+                            Arkiv.insert {
+                                it[dato] = now
+                                it[opprettetAv] = payload.opprettetAv
+                                it[kilde] = payload.kilde
+                                it[dokumentasjon] = payload.dokumentasjon
+                                it[dokumentasjonId] = payload.dokumentasjonId
+                                it[dokumentdato] = DateTime.parse(payload.dokumentdato, fmt_onlyDay)
+                                it[aktoerid] = payload.aktoerid
+                                it[fnr] = payload.fnr
+                                it[orgnr] = payload.orgnr
+                                it[tema] = payload.tema
+                                it[konfidentiellt] = payload.konfidentiellt
+                            } get Arkiv.id
+                        }
                     if (update) {
                         log.info { "Made an update on dokumentasjonId: ${payload.dokumentasjonId}, entryid: $id" }
                     } else {
@@ -122,8 +123,8 @@ object DB {
                             if (payload.konfidentiellt) "-hidden-" else payload.fnr,
                             if (payload.konfidentiellt) "-hidden-" else payload.orgnr,
                             if (payload.konfidentiellt) "-hidden-" else payload.tema,
-                            payload.konfidentiellt
-                        )
+                            payload.konfidentiellt,
+                        ),
                     )
                 }
             }
@@ -131,11 +132,15 @@ object DB {
         return result
     }
 
-    fun Query.andWhere(andPart: SqlExpressionBuilder.() -> Op<Boolean>) = adjustWhere {
-        val expr = Op.build { andPart() }
-        if (this == null) expr
-        else this and expr
-    }
+    fun Query.andWhere(andPart: SqlExpressionBuilder.() -> Op<Boolean>) =
+        adjustWhere {
+            val expr = Op.build { andPart() }
+            if (this == null) {
+                expr
+            } else {
+                this and expr
+            }
+        }
 
     fun henteArchiveV4(henteRequest: HenteModel): List<HenteResponse> {
         if (isDev) log.info { "henteArchive v4 henteRequest: $henteRequest (Log in dev)" }
@@ -149,45 +154,48 @@ object DB {
             if (henteRequest.tema.isNotEmpty()) query.andWhere { Arkiv.tema eq henteRequest.tema }
             if (henteRequest.kilde.isNotEmpty()) query.andWhere { Arkiv.kilde eq henteRequest.kilde }
             if (henteRequest.dokumentasjonId.isNotEmpty()) query.andWhere { Arkiv.dokumentasjonId eq henteRequest.dokumentasjonId }
-            if (henteRequest.dokumentdato.isNotEmpty()) query.andWhere {
-                Arkiv.dokumentdato eq DateTime.parse(
-                    henteRequest.dokumentdato,
-                    fmt_onlyDay
-                )
+            if (henteRequest.dokumentdato.isNotEmpty()) {
+                query.andWhere {
+                    Arkiv.dokumentdato eq
+                        DateTime.parse(
+                            henteRequest.dokumentdato,
+                            fmt_onlyDay,
+                        )
+                }
             }
             query.andWhere { Arkiv.konfidentiellt eq false }
 
             val resultRow = query.toList()
             File("/tmp/queryListHenteArchivev4").writeText(resultRow.toString())
-            result = resultRow.map {
-                HenteResponse(
-                    id = it[Arkiv.id],
-                    dato = fmt.print(it[Arkiv.dato]),
-                    opprettetAv = it[Arkiv.opprettetAv],
-                    kilde = it[Arkiv.kilde],
-                    dokumentasjonId = it[Arkiv.dokumentasjonId],
-                    dokumentasjon = it[Arkiv.dokumentasjon],
-                    dokumentdato = fmt_onlyDay.print(it[Arkiv.dokumentdato]),
-                    aktoerid = it[Arkiv.aktoerid],
-                    fnr = it[Arkiv.fnr],
-                    orgnr = it[Arkiv.orgnr],
-                    tema = it[Arkiv.tema]
-                )
-            }
+            result =
+                resultRow.map {
+                    HenteResponse(
+                        id = it[Arkiv.id],
+                        dato = fmt.print(it[Arkiv.dato]),
+                        opprettetAv = it[Arkiv.opprettetAv],
+                        kilde = it[Arkiv.kilde],
+                        dokumentasjonId = it[Arkiv.dokumentasjonId],
+                        dokumentasjon = it[Arkiv.dokumentasjon],
+                        dokumentdato = fmt_onlyDay.print(it[Arkiv.dokumentdato]),
+                        aktoerid = it[Arkiv.aktoerid],
+                        fnr = it[Arkiv.fnr],
+                        orgnr = it[Arkiv.orgnr],
+                        tema = it[Arkiv.tema],
+                    )
+                }
         }
         log.info { "henteArchive v4 returns ${result.size} entries" }
         return result.sortedBy { it.id }
     }
 
-    private const val cutOff = 30
+    private const val CUT_OFF = 30
 
-    private fun summarize(dokumentasjon: String): String {
-        return if (dokumentasjon.length > cutOff) {
-            dokumentasjon.substring(0 until cutOff) + "... ($cutOff of ${dokumentasjon.length} characters)"
+    private fun summarize(dokumentasjon: String): String =
+        if (dokumentasjon.length > CUT_OFF) {
+            dokumentasjon.substring(0 until CUT_OFF) + "... ($CUT_OFF of ${dokumentasjon.length} characters)"
         } else {
             dokumentasjon
         }
-    }
 
     fun listTables(): List<String> {
         val result: MutableList<String> = mutableListOf()

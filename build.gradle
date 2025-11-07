@@ -1,9 +1,8 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id 'application'
-    id 'org.jmailen.kotlinter' version '3.2.0'
-    id 'org.jetbrains.kotlin.jvm' version '1.9.24'
+
+    id 'org.jetbrains.kotlin.jvm' version '2.1.21'
+    id 'org.jmailen.kotlinter' version '5.2.0'
     id 'com.gradleup.shadow' version '8.3.1'
 }
 
@@ -19,11 +18,8 @@ shadowJar {
 }
 
 application {
-    mainClassName = 'no.nav.sf.arkiv.BootstrapKt'
+    mainClass = 'no.nav.sf.arkiv.BootstrapKt'
 }
-
-apply plugin: 'kotlin'
-apply plugin: 'application'
 
 group 'no.nav.sf.arkiv'
 version '0.1'
@@ -43,18 +39,18 @@ dependencies {
     implementation "no.nav.security:token-validation-core:4.1.5" //Major version 5 issue using webproxy
     implementation "net.minidev:json-smart:2.5.2" //Transient dependency to token-validation
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0'
 
-    implementation "com.google.code.gson:gson:2.11.0"
+    implementation "com.google.code.gson:gson:2.13.2"
 
     implementation "org.postgresql:postgresql:42.5.5"
 
     implementation "no.nav:vault-jdbc:1.3.10"
     implementation "com.zaxxer:HikariCP:5.0.1"
-    implementation("com.bettercloud:vault-java-driver:5.1.0")
+    implementation "com.bettercloud:vault-java-driver:5.1.0"
 
-    implementation("io.prometheus:simpleclient_hotspot:0.8.1")
-    implementation("io.prometheus:simpleclient_common:0.8.1")
+    implementation "io.prometheus:simpleclient_hotspot:0.8.1"
+    implementation "io.prometheus:simpleclient_common:0.8.1"
 
     // ORM Framework
     implementation 'org.jetbrains.exposed:exposed-core:0.46.0'
@@ -62,22 +58,15 @@ dependencies {
     implementation 'org.jetbrains.exposed:exposed-jdbc:0.46.0'
     implementation 'org.jetbrains.exposed:exposed-jodatime:0.46.0'
 
-    implementation("io.github.microutils:kotlin-logging:3.0.5")
-    implementation "ch.qos.logback:logback-classic:1.5.18"
+    implementation "io.github.microutils:kotlin-logging:3.0.5"
+    implementation "ch.qos.logback:logback-classic:1.5.20"
     implementation "net.logstash.logback:logstash-logback-encoder:8.1"
 
-    implementation "org.http4k:http4k-core:5.14.4.0"
-    implementation "org.http4k:http4k-server-netty:5.14.4.0"
-    implementation "io.netty:netty-handler:4.1.118.Final" //4.1.117.Final has vulnerability
-    implementation "io.netty:netty-common:4.1.118.Final" //4.1.117.Final has vulnerability
-    implementation "org.http4k:http4k-client-okhttp:5.14.4.0"
+    implementation "org.http4k:http4k-core:6.20.1.0"
+    implementation "org.http4k:http4k-server-netty:6.20.1.0"
+    implementation "org.http4k:http4k-client-okhttp:6.20.1.0"
 }
 
-tasks.withType(KotlinCompile) {
-    kotlinOptions.jvmTarget = "21"
-}
-
-tasks.withType(JavaCompile) {
-    sourceCompatibility = "21"
-    targetCompatibility = "21"
+kotlin {
+    jvmToolchain(21)
 }

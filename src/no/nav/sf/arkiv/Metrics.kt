@@ -13,9 +13,12 @@ object Metrics {
     val latestId = registerGauge("latest_id")
     val issues = registerGauge("issues")
 
-    fun registerGauge(name: String): Gauge {
-        return Gauge.build().name(name).help(name).register()
-    }
+    fun registerGauge(name: String): Gauge =
+        Gauge
+            .build()
+            .name(name)
+            .help(name)
+            .register()
 
     init {
         DefaultExports.initialize()

@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:property-naming")
+
 package no.nav.sf.arkiv.token
 
 import mu.KotlinLogging
@@ -26,11 +28,12 @@ class DefaultTokenValidator : TokenValidator {
 
     private val callerList: MutableMap<String, Int> = mutableMapOf()
 
-    private val multiIssuerConfiguration = MultiIssuerConfiguration(
-        mapOf(
-            azureAlias to IssuerProperties(URL(azureUrl), azureAudience)
+    private val multiIssuerConfiguration =
+        MultiIssuerConfiguration(
+            mapOf(
+                azureAlias to IssuerProperties(URL(azureUrl), azureAudience),
+            ),
         )
-    )
 
     private val jwtTokenValidationHandler = JwtTokenValidationHandler(multiIssuerConfiguration)
 
@@ -52,9 +55,7 @@ class DefaultTokenValidator : TokenValidator {
     private fun Request.toNavRequest(): HttpRequest {
         val req = this
         return object : HttpRequest {
-            override fun getHeader(headerName: String): String {
-                return req.header(headerName) ?: ""
-            }
+            override fun getHeader(headerName: String): String = req.header(headerName) ?: ""
         }
     }
 }

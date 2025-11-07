@@ -14,8 +14,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.net.SocketTimeoutException
 import java.time.Instant
 
-class PostgresDatabase() {
-
+class PostgresDatabase {
     private val log = KotlinLogging.logger { }
 
     private val vaultMountPath = mountPath
@@ -38,7 +37,7 @@ class PostgresDatabase() {
                 return HikariCPVaultUtil.createHikariDataSourceWithVaultIntegration(
                     hikariConfig(),
                     vaultMountPath,
-                    if (admin) adminRole else userTole
+                    if (admin) adminRole else userTole,
                 )
             } catch (e: Exception) {
                 currentRetry++
@@ -69,8 +68,8 @@ class PostgresDatabase() {
         throw RuntimeException("Failed to create HikariDataSource after $maxRetries attempts")
     }
 
-    private fun hikariConfig(): HikariConfig {
-        return HikariConfig().apply {
+    private fun hikariConfig(): HikariConfig =
+        HikariConfig().apply {
             jdbcUrl = targetDbUrl
             minimumIdle = 1
             maxLifetime = 26000
@@ -80,7 +79,6 @@ class PostgresDatabase() {
             isAutoCommit = false
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         }
-    }
 
     fun create() {
         val admin = Database.connect(dataSource(admin = true))
@@ -102,14 +100,17 @@ class PostgresDatabase() {
         }
     }
 
-    fun idQuery(tableName: String, refList: List<String>) {
+    fun idQuery(
+        tableName: String,
+        refList: List<String>,
+    ) {
         if (!refList.contains(tableName)) {
             log.info { "$tableName not present in reference list of tables - skip idQuery" }
             return
         }
         log.info { "Will attempt lastId fetch for $tableName" }
         Database.connect(dataSource())
-        transaction() {
+        transaction {
             // Option 1: Get the ID of the last row
             val lastRow =
                 exec("SELECT id, dato FROM $tableName ORDER BY id DESC LIMIT 1") { rs ->
