@@ -48,14 +48,11 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: itestapp
-          namespace: teamcrm
-          cluster: prod-gcp
         - application: saas-proxy
           namespace: teamcrm
           cluster: prod-gcp
-        - application: sf-arkiv-proxy
-          namespace: teamcrm
+        - application: saas-proxy
+          namespace: platforce
           cluster: prod-gcp
         - application: salesforce
           namespace: teamcrm

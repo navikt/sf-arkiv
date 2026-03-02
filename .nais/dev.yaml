@@ -52,8 +52,8 @@ spec:
         - application: saas-proxy
           namespace: teamcrm
           cluster: dev-gcp
-        - application: sf-arkiv-proxy
-          namespace: teamcrm
+        - application: saas-proxy
+          namespace: platforce
           cluster: dev-gcp
         - application: salesforce
           namespace: teamcrm
