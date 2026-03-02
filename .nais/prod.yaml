@@ -2,9 +2,9 @@ apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
   name: sf-arkiv
-  namespace: teamcrm
+  namespace: platforce
   labels:
-    team: teamcrm
+    team: platforce
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "256M"
 spec:
