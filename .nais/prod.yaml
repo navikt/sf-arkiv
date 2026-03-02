@@ -36,8 +36,8 @@ spec:
     enabled: true
     path: /internal/prometheus
   ingresses:
-    - "https://sf-arkiv-dokumentasjon.intern.nav.no"
-    - "https://sf-arkiv-dokumentasjon.prod-fss-pub.nais.io"
+    - "https://sf-arkiv.intern.nav.no"
+    - "https://sf-arkiv.prod-fss-pub.nais.io"
   vault:
     enabled: true
   webproxy: true
