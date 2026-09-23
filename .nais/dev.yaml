@@ -2,9 +2,9 @@ apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
   name: sf-arkiv
-  namespace: platforce
+  namespace: teamcrm
   labels:
-    team: platforce
+    team: teamcrm
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "256M"
 spec:
@@ -37,8 +37,8 @@ spec:
     enabled: true
     path: /internal/prometheus
   ingresses:
-    - "https://sf-arkiv.intern.dev.nav.no"
-    - "https://sf-arkiv.dev-fss-pub.nais.io"
+    - "https://sf-arkiv-dokumentasjon.intern.dev.nav.no"
+    - "https://sf-arkiv-dokumentasjon.dev-fss-pub.nais.io"
   vault:
     enabled: true
   azure:
