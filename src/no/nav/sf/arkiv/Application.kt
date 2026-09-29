@@ -112,6 +112,9 @@ class Application(
                                 Status.BAD_REQUEST,
                             ).body("One or more payload contain invalid dokumentdato (correct format is yyyy-MM-dd)")
                         } else {
+                            arkivItems.forEach {
+                                Metrics.arkivItem.labels(it.opprettetAv, it.kilde, it.tema, it.konfidentiellt.toString()).inc()
+                            }
                             val result = addArchive(arkivItems)
                             result.firstOrNull()?.let {
                                 File("/tmp/exampleResponseEntity").writeText("First of ${result.size}" + it.toString())
