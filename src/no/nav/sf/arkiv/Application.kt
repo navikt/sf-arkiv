@@ -2,6 +2,7 @@ package no.nav.sf.arkiv
 
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import filesHandler
 import io.prometheus.client.exporter.common.TextFormat
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -54,6 +55,10 @@ class Application(
 
     fun start() {
         log.info { "Starting ${if (isDev) "DEV" else "PROD"}" }
+
+        val dir = File("/tmp/files")
+        dir.mkdirs() // ensures /tmp/files exists
+
         apiServer(NAIS_DEFAULT_PORT).start()
 
         val tablesTarget = DB.listTables()
@@ -88,6 +93,8 @@ class Application(
                         }.toString(),
                 )
             },
+            "/internal/files" bind Method.GET to filesHandler(File("/tmp/files")),
+            "/internal/files/{path:.*}" bind Method.GET to filesHandler(File("/tmp/files")),
             "/authping" bind Method.GET to { r ->
                 Response(Status.OK).body("Auth: ${tokenValidator.firstValidToken(r) != null}")
             },
@@ -99,6 +106,7 @@ class Application(
                     val devBypass = isDev && arkivItems.first().kilde == "test"
                     if (devBypass || tokenValidator.firstValidToken(r) != null) {
                         log.info { "Authorized call to Arkiv" }
+                        File("/tmp/files/latestRequest").writeText(r.toMessage())
                         if (arkivItems.any { !it.hasValidDokumentDato() }) {
                             Response(
                                 Status.BAD_REQUEST,
@@ -138,7 +146,7 @@ class Application(
                         val responses = henteArchiveV4(henteModel)
                         log.info { "Hente successful response with ${responses.size} entries" }
                         val asJson = gson.toJson(responses)
-                        File("/tmp/henteresult").writeText(asJson)
+                        File("/tmp/files/henteresult").writeText(asJson)
                         Response(Status.OK).body(asJson)
                     }
                 } else {
