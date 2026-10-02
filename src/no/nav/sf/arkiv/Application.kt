@@ -166,15 +166,24 @@ val gson = Gson()
 
 private val databaseDiagnosticsHandler: HttpHandler = {
     try {
-        val diagnostics =
+        val diagnostic =
             DB.postgresDatabase.databaseDiagnostics()
+
+        log.info(
+            "Database diagnostic: " +
+                "table=${diagnostic.table}, " +
+                "size=${diagnostic.totalSize}, " +
+                "sizeBytes=${diagnostic.totalSizeBytes}, " +
+                "rows=${diagnostic.rowEstimate}, " +
+                "bytesPerRow=${diagnostic.bytesPerRow}",
+        )
 
         Response(Status.OK)
             .header(
                 "Content-Type",
                 "application/json",
             ).body(
-                gson.toJson(diagnostics),
+                gson.toJson(diagnostic),
             )
     } catch (e: Exception) {
         log.error(e) {
