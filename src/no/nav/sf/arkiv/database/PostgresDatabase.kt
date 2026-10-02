@@ -1,5 +1,6 @@
 package no.nav.sf.arkiv.database
 
+import com.google.gson.JsonParser
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
@@ -197,5 +198,99 @@ class PostgresDatabase {
                         },
                 )
             }!!
+        }
+
+    data class DatabaseGrowthDiagnostic(
+        val table: String,
+        val totalSize: String,
+        val totalSizeBytes: Long,
+        val estimatedRows: Long,
+        val bytesPerRow: Double,
+        val estimatedRowsLast30Days: Long,
+        val estimatedRowsPerYear: Long,
+        val estimatedBytesPerYear: Long,
+        val estimatedSizeAfter10Years: Long,
+    )
+
+    fun databaseGrowthDiagnostics(): DatabaseGrowthDiagnostic =
+        transaction(database) {
+            val total =
+                exec(
+                    """
+                    SELECT
+                        pg_total_relation_size('arkiv') AS total_size_bytes,
+                        pg_size_pretty(
+                            pg_total_relation_size('arkiv')
+                        ) AS total_size,
+                        COALESCE(
+                            n_live_tup,
+                            0
+                        )::bigint AS estimated_rows
+                    FROM pg_catalog.pg_stat_user_tables
+                    WHERE relname = 'arkiv'
+                    """.trimIndent(),
+                ) { rs ->
+                    check(rs.next())
+
+                    Triple(
+                        rs.getLong("total_size_bytes"),
+                        rs.getString("total_size"),
+                        rs.getLong("estimated_rows"),
+                    )
+                }!!
+
+            val totalSizeBytes = total.first
+            val totalSize = total.second
+            val estimatedRows = total.third
+
+            val estimatedRowsLast30Days =
+                exec(
+                    """
+                    EXPLAIN (FORMAT JSON)
+                    SELECT 1
+                    FROM arkiv
+                    WHERE dato >= CURRENT_TIMESTAMP - INTERVAL '30 days'
+                    """.trimIndent(),
+                ) { rs ->
+                    check(rs.next())
+
+                    val explainJson = rs.getString(1)
+
+                    JsonParser
+                        .parseString(explainJson)
+                        .asJsonArray[0]
+                        .asJsonObject["Plan"]
+                        .asJsonObject["Plan Rows"]
+                        .asLong
+                }!!
+
+            val bytesPerRow =
+                if (estimatedRows > 0) {
+                    totalSizeBytes.toDouble() / estimatedRows
+                } else {
+                    0.0
+                }
+
+            val estimatedRowsPerYear =
+                (estimatedRowsLast30Days * 365.0 / 30.0).toLong()
+
+            val estimatedBytesPerYear =
+                (estimatedRowsPerYear * bytesPerRow).toLong()
+
+            val estimatedSizeAfter10Years =
+                totalSizeBytes +
+                    estimatedBytesPerYear * 10
+
+            DatabaseGrowthDiagnostic(
+                table = "arkiv",
+                totalSize = totalSize,
+                totalSizeBytes = totalSizeBytes,
+                estimatedRows = estimatedRows,
+                bytesPerRow = bytesPerRow,
+                estimatedRowsLast30Days = estimatedRowsLast30Days,
+                estimatedRowsPerYear = estimatedRowsPerYear,
+                estimatedBytesPerYear = estimatedBytesPerYear,
+                estimatedSizeAfter10Years = estimatedSizeAfter10Years,
+            )
         }
 }

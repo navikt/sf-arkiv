@@ -159,6 +159,7 @@ class Application(
                 }
             },
             "/internal/databaseDiagnostics" bind Method.GET to databaseDiagnosticsHandler,
+            "/internal/databaseGrowthDiagnostics" bind Method.GET to databaseGrowthDiagnosticsHandler,
         )
 }
 
@@ -193,6 +194,44 @@ private val databaseDiagnosticsHandler: HttpHandler = {
         Response(Status.INTERNAL_SERVER_ERROR)
             .body(
                 "Could not read database diagnostics: " +
+                    e.message,
+            )
+    }
+}
+
+private val databaseGrowthDiagnosticsHandler: HttpHandler = {
+    try {
+        val diagnostic =
+            DB.postgresDatabase.databaseGrowthDiagnostics()
+
+        log.info(
+            "Database growth diagnostic: " +
+                "table=${diagnostic.table}, " +
+                "size=${diagnostic.totalSize}, " +
+                "sizeBytes=${diagnostic.totalSizeBytes}, " +
+                "estimatedRows=${diagnostic.estimatedRows}, " +
+                "bytesPerRow=${diagnostic.bytesPerRow}, " +
+                "estimatedRowsLast30Days=${diagnostic.estimatedRowsLast30Days}, " +
+                "estimatedRowsPerYear=${diagnostic.estimatedRowsPerYear}, " +
+                "estimatedBytesPerYear=${diagnostic.estimatedBytesPerYear}, " +
+                "estimatedSizeAfter10Years=${diagnostic.estimatedSizeAfter10Years}",
+        )
+
+        Response(Status.OK)
+            .header(
+                "Content-Type",
+                "application/json",
+            ).body(
+                gson.toJson(diagnostic),
+            )
+    } catch (e: Exception) {
+        log.error(e) {
+            "Could not read database growth diagnostics"
+        }
+
+        Response(Status.INTERNAL_SERVER_ERROR)
+            .body(
+                "Could not read database growth diagnostics: " +
                     e.message,
             )
     }
