@@ -199,7 +199,7 @@ object DB {
 
     fun listTables(): List<String> {
         val result: MutableList<String> = mutableListOf()
-        transaction(postgresDatabase.databaseConnection) {
+        transaction(postgresDatabase.database) {
             log.info { "Tables:" }
             SchemaUtils.listTables().forEach {
                 log.info { it }

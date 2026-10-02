@@ -1,5 +1,6 @@
 package no.nav.sf.arkiv
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import filesHandler
@@ -11,6 +12,7 @@ import mu.KotlinLogging
 import no.nav.sf.arkiv.database.DB
 import no.nav.sf.arkiv.database.DB.addArchive
 import no.nav.sf.arkiv.database.DB.henteArchiveV4
+import no.nav.sf.arkiv.database.PostgresDatabase
 import no.nav.sf.arkiv.model.ArkivModel
 import no.nav.sf.arkiv.model.HenteModel
 import no.nav.sf.arkiv.model.hasValidDokumentDato
@@ -156,7 +158,35 @@ class Application(
                     Response(Status.UNAUTHORIZED).body("Hente call denied - missing valid token")
                 }
             },
+            "/internal/databaseDiagnostics" bind Method.GET to databaseDiagnosticsHandler,
         )
+}
+
+val gson = Gson()
+
+private val databaseDiagnosticsHandler: HttpHandler = {
+    try {
+        val diagnostics =
+            DB.postgresDatabase.databaseDiagnostics()
+
+        Response(Status.OK)
+            .header(
+                "Content-Type",
+                "application/json",
+            ).body(
+                gson.toJson(diagnostics),
+            )
+    } catch (e: Exception) {
+        log.error(e) {
+            "Could not read database diagnostics"
+        }
+
+        Response(Status.INTERNAL_SERVER_ERROR)
+            .body(
+                "Could not read database diagnostics: " +
+                    e.message,
+            )
+    }
 }
 
 fun doAddTestData() {

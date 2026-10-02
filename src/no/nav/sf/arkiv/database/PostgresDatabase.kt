@@ -23,7 +23,7 @@ class PostgresDatabase {
 
     // Note: exposed Database connect prepares for connections but does not actually open connections
     // That is handled via transaction {} ensuring connections are opened and closed properly
-    val databaseConnection = Database.connect(dataSource())
+    val database = Database.connect(dataSource())
 
     // HikariCPVaultUtil fetches and refreshed credentials
     private fun dataSource(admin: Boolean = false): HikariDataSource {
@@ -145,4 +145,57 @@ class PostgresDatabase {
         }
         return false
     }
+
+    data class DatabaseTableDiagnostic(
+        val table: String,
+        val totalSize: String,
+        val totalSizeBytes: Long,
+        val rowEstimate: Long,
+        val bytesPerRow: Double,
+    )
+
+    fun databaseDiagnostics(): DatabaseTableDiagnostic =
+        transaction(database) {
+            exec(
+                """
+                SELECT
+                    s.relname AS table_name,
+                    pg_total_relation_size(s.relid) AS total_size_bytes,
+                    pg_size_pretty(
+                        pg_total_relation_size(s.relid)
+                    ) AS total_size,
+                    COALESCE(
+                        p.n_live_tup,
+                        0
+                    )::bigint AS row_estimate
+                FROM pg_catalog.pg_statio_user_tables s
+                LEFT JOIN pg_catalog.pg_stat_user_tables p
+                    ON p.relid = s.relid
+                WHERE s.relname = 'arkiv'
+                """.trimIndent(),
+            ) { rs ->
+                if (!rs.next()) {
+                    error("Table 'arkiv' not found")
+                }
+
+                val totalSizeBytes =
+                    rs.getLong("total_size_bytes")
+
+                val rowEstimate =
+                    rs.getLong("row_estimate")
+
+                DatabaseTableDiagnostic(
+                    table = rs.getString("table_name"),
+                    totalSize = rs.getString("total_size"),
+                    totalSizeBytes = totalSizeBytes,
+                    rowEstimate = rowEstimate,
+                    bytesPerRow =
+                        if (rowEstimate > 0) {
+                            totalSizeBytes.toDouble() / rowEstimate
+                        } else {
+                            0.0
+                        },
+                )
+            }!!
+        }
 }
