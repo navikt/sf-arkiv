@@ -230,7 +230,7 @@ class PostgresDatabase {
                                 dato,
                                 opprettet_av,
                                 kilde,
-                                dokumentasjonId,
+                                "dokumentasjonId",
                                 dokumentasjon,
                                 dokumentdato,
                                 aktoerid,
