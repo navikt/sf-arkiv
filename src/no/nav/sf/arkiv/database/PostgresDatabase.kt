@@ -243,18 +243,24 @@ class PostgresDatabase {
             val totalSize = total.second
             val estimatedRows = total.third
 
-            val estimatedRowsLast30Days =
-                exec(
+            val statement =
+                connection.prepareStatement(
                     """
                     EXPLAIN (FORMAT JSON)
                     SELECT 1
                     FROM arkiv
                     WHERE dato >= CURRENT_TIMESTAMP - INTERVAL '30 days'
                     """.trimIndent(),
-                ) { rs ->
-                    check(rs.next())
+                    false,
+                )
 
-                    val explainJson = rs.getString(1)
+            val resultSet = statement.executeQuery()
+
+            val estimatedRowsLast30Days =
+                try {
+                    check(resultSet.next())
+
+                    val explainJson = resultSet.getString(1)
 
                     JsonParser
                         .parseString(explainJson)
@@ -262,7 +268,10 @@ class PostgresDatabase {
                         .asJsonObject["Plan"]
                         .asJsonObject["Plan Rows"]
                         .asLong
-                }!!
+                } finally {
+                    resultSet.close()
+                    // statement.close()
+                }
 
             val bytesPerRow =
                 if (estimatedRows > 0) {
