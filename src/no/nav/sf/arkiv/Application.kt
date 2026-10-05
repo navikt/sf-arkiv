@@ -159,7 +159,7 @@ class Application(
                 }
             },
             "/internal/databaseDiagnostics" bind Method.GET to databaseDiagnosticsHandler,
-            "/internal/databaseGrowthDiagnostics" bind Method.GET to databaseGrowthDiagnosticsHandler,
+            "/internal/databaseGrowthDiagnostics" bind Method.GET to databaseSourceDiagnosticsHandler,
         )
 }
 
@@ -199,6 +199,7 @@ private val databaseDiagnosticsHandler: HttpHandler = {
     }
 }
 
+/*
 private val databaseGrowthDiagnosticsHandler: HttpHandler = {
     try {
         val diagnostic =
@@ -232,6 +233,44 @@ private val databaseGrowthDiagnosticsHandler: HttpHandler = {
         Response(Status.INTERNAL_SERVER_ERROR)
             .body(
                 "Could not read database growth diagnostics: " +
+                    e.message,
+            )
+    }
+}
+
+ */
+
+private val databaseSourceDiagnosticsHandler: HttpHandler = {
+    try {
+        val diagnostics =
+            DB.postgresDatabase.databaseSourceDiagnostics()
+
+        log.info(
+            "Database source diagnostics: " +
+                diagnostics.joinToString { diagnostic ->
+                    "source=${diagnostic.source}, " +
+                        "rowsLast30Days=${diagnostic.rowsLast30Days}, " +
+                        "rowDataBytesLast30Days=${diagnostic.rowDataBytesLast30Days}, " +
+                        "estimatedRowsPerYear=${diagnostic.estimatedRowsPerYear}, " +
+                        "estimatedRowDataBytesPerYear=${diagnostic.estimatedRowDataBytesPerYear}"
+                },
+        )
+
+        Response(Status.OK)
+            .header(
+                "Content-Type",
+                "application/json",
+            ).body(
+                gson.toJson(diagnostics),
+            )
+    } catch (e: Exception) {
+        log.error(e) {
+            "Could not read database source diagnostics"
+        }
+
+        Response(Status.INTERNAL_SERVER_ERROR)
+            .body(
+                "Could not read database source diagnostics: " +
                     e.message,
             )
     }

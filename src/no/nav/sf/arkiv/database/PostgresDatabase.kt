@@ -200,6 +200,90 @@ class PostgresDatabase {
             }!!
         }
 
+    data class DatabaseSourceDiagnostic(
+        val source: String,
+        val rowsLast30Days: Long,
+        val rowDataBytesLast30Days: Long,
+        val estimatedRowsPerYear: Long,
+        val estimatedRowDataBytesPerYear: Long,
+    )
+
+    data class DatabaseGrowthDiagnostic(
+        val table: String,
+        val totalSize: String,
+        val totalSizeBytes: Long,
+        val totalRows: Long,
+        val sources: List<DatabaseSourceDiagnostic>,
+    )
+
+    fun databaseSourceDiagnostics(): List<DatabaseSourceDiagnostic> =
+        transaction(database) {
+            exec(
+                """
+                SELECT
+                    opprettet_av,
+                    COUNT(*) AS row_count,
+                    COALESCE(
+                        SUM(
+                            pg_column_size(
+                                id,
+                                dato,
+                                opprettet_av,
+                                kilde,
+                                dokumentasjonId,
+                                dokumentasjon,
+                                dokumentdato,
+                                aktoerid,
+                                fnr,
+                                orgnr,
+                                tema,
+                                konfidentiellt
+                            )
+                        ),
+                        0
+                    ) AS row_data_bytes
+                FROM arkiv
+                WHERE dato >= CURRENT_TIMESTAMP - INTERVAL '30 days'
+                GROUP BY opprettet_av
+                ORDER BY opprettet_av
+                """.trimIndent(),
+            ) { rs ->
+                buildList {
+                    while (rs.next()) {
+                        val rowsLast30Days =
+                            rs.getLong("row_count")
+
+                        val rowDataBytesLast30Days =
+                            rs.getLong("row_data_bytes")
+
+                        add(
+                            DatabaseSourceDiagnostic(
+                                source =
+                                    rs.getString("opprettet_av"),
+                                rowsLast30Days =
+                                rowsLast30Days,
+                                rowDataBytesLast30Days =
+                                rowDataBytesLast30Days,
+                                estimatedRowsPerYear =
+                                    (
+                                        rowsLast30Days *
+                                            365.0 /
+                                            30.0
+                                    ).toLong(),
+                                estimatedRowDataBytesPerYear =
+                                    (
+                                        rowDataBytesLast30Days *
+                                            365.0 /
+                                            30.0
+                                    ).toLong(),
+                            ),
+                        )
+                    }
+                }
+            } ?: emptyList()
+        }
+
+    /*
     data class DatabaseGrowthDiagnostic(
         val table: String,
         val totalSize: String,
@@ -302,4 +386,6 @@ class PostgresDatabase {
                 estimatedSizeAfter10Years = estimatedSizeAfter10Years,
             )
         }
+
+     */
 }
