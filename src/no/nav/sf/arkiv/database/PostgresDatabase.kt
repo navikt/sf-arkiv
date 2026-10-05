@@ -224,22 +224,7 @@ class PostgresDatabase {
                     opprettet_av,
                     COUNT(*) AS row_count,
                     COALESCE(
-                        SUM(
-                            pg_column_size(
-                                id,
-                                dato,
-                                opprettet_av,
-                                kilde,
-                                "dokumentasjonId",
-                                dokumentasjon,
-                                dokumentdato,
-                                aktoerid,
-                                fnr,
-                                orgnr,
-                                tema,
-                                konfidentiellt
-                            )
-                        ),
+                        SUM(pg_column_size(arkiv)),
                         0
                     ) AS row_data_bytes
                 FROM arkiv
