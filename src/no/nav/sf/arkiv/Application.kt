@@ -12,7 +12,6 @@ import mu.KotlinLogging
 import no.nav.sf.arkiv.database.DB
 import no.nav.sf.arkiv.database.DB.addArchive
 import no.nav.sf.arkiv.database.DB.henteArchiveV4
-import no.nav.sf.arkiv.database.PostgresDatabase
 import no.nav.sf.arkiv.model.ArkivModel
 import no.nav.sf.arkiv.model.HenteModel
 import no.nav.sf.arkiv.model.hasValidDokumentDato
@@ -106,9 +105,14 @@ class Application(
                     val typeToken = object : TypeToken<List<ArkivModel>>() {}.type
                     val arkivItems = gson.fromJson<List<ArkivModel>>(r.bodyString(), typeToken)
                     val devBypass = isDev && arkivItems.first().kilde == "test"
-                    if (devBypass || tokenValidator.firstValidToken(r) != null) {
+                    val firstValidToken = tokenValidator.firstValidToken(r)
+                    if (devBypass || firstValidToken != null) {
                         log.info { "Authorized call to Arkiv" }
-                        File("/tmp/files/latestRequest").writeText(r.toMessage())
+                        arkivItems.firstOrNull()?.let {
+                            val postfix = it.opprettetAv.ifBlank { "blank" }
+                            File("/tmp/files/latestRequest-$postfix").writeText(r.toMessage())
+                        }
+
                         if (arkivItems.any { !it.hasValidDokumentDato() }) {
                             Response(
                                 Status.BAD_REQUEST,
@@ -119,7 +123,7 @@ class Application(
                             }
                             val result = addArchive(arkivItems)
                             result.firstOrNull()?.let {
-                                File("/tmp/exampleResponseEntity").writeText("First of ${result.size}" + it.toString())
+                                File("/tmp/files/exampleResponseEntity").writeText("First of ${result.size}" + it.toString())
                             }
                             Metrics.insertedEntries.inc(result.size.toDouble())
                             Response(Status.CREATED).body(gson.toJson(result))
