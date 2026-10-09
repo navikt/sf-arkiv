@@ -1,4 +1,4 @@
-# sf-arkiv
+# sf-arkiv [<img align="right" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="18" alt="GitHub repository" />](https://github.com/navikt/sf-arkiv)
 
 `sf-arkiv` er en on-premise PostgreSQL-arkivløsning laget for å ivareta kravene i arkivloven. Løsningen brukes til å lagre **arkivverdig, men ikke journalpliktig** data fra Salesforce. Hvert Salesforce-team er selv ansvarlig for å overføre slikt materiale til `sf-arkiv`.
 
