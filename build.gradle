@@ -63,7 +63,7 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:1.6.6"
     implementation "net.logstash.logback:logstash-logback-encoder:9.0"
 
-    implementation "tools.jackson.core:jackson-databind:3.2.4" // Transitive dependency for net.logstash.logback:logstash-logback-encoder:9.0
+    implementation "tools.jackson.core:jackson-databind:3.3.0" // Transitive dependency for net.logstash.logback:logstash-logback-encoder:9.0
     implementation "org.http4k:http4k-core:6.61.0.0"
     implementation "org.http4k:http4k-server-netty:6.61.0.0"
     implementation "org.http4k:http4k-client-okhttp:6.61.0.0"
@@ -75,6 +75,13 @@ kotlin {
 
 tasks.named('shadowJar') {
     filesMatching('META-INF/*.kotlin_module') {
+        duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
+    }
+}
+
+tasks.named('shadowJar') {
+    mergeServiceFiles()
+    filesMatching('META-INF/services/**') {
         duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
     }
 }
